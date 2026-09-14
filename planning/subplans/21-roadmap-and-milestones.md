@@ -142,9 +142,9 @@ it earns a place.
 
 | Item | Why |
 |---|---|
-| Circuit logic synthesis | Cello did it well. Import its output instead. Multi-year to reimplement. |
-| Genome-scale indexing | Measured at 113.8 GB for a human genome (subplan 09). Out of scope, stated with the number. |
-| 3D construct rendering | Constructs are linear. SBOL Visual is 2D because that is what journals accept. |
+| ~~Circuit logic synthesis~~ | **Moved into scope 2026-09-15.** Cello is BSD-2-Clause: fork and port, do not reimplement. Subplan 25. |
+| ~~Genome-scale indexing~~ | **Moved into scope 2026-09-15.** The 113.8 GB figure was one library's design choice, not a property of the approach. Compressed index measures ~3.9 bytes/base. Subplan 28. |
+| 3D *construct* rendering | Still excluded: constructs are linear and SBOL Visual is 2D because that is what journals accept. **3D for molecular structure is in scope**, subplan 27. |
 | Our own screening matcher | A false negative is the worst failure available. Delegate to a peer-reviewed implementation. |
 | Our own SBOL implementation | 348 validation rules already exist upstream. |
 | A hosted service we operate | We publish images. Operating a service is a different business. |

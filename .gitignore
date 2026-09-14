@@ -59,7 +59,7 @@ ENV/
 htmlcov/
 .tox/
 .nox/
-# uv manages the lockfile; it is committed deliberately.
+# uv.lock is committed deliberately, same reasoning as Cargo.lock.
 
 # ---------------------------------------------------------------------------
 # Node and the web/WASM target

@@ -1,0 +1,41 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version       = "0.0.0"
+edition       = "2024"
+rust-version  = "1.93"
+license       = "Apache-2.0"
+repository    = "https://github.com/SakarZaidan/integrase"
+authors       = ["The Integrase Authors"]
+
+# Lints applied workspace-wide. These encode subplan 07's rules mechanically so
+# they are enforced by the compiler rather than by reviewer attention.
+[workspace.lints.rust]
+missing_docs                = "deny"   # R-4.1: public items are documented
+unsafe_code                 = "deny"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+# R-1.2: no unwrap/expect in library code. Test code overrides these locally.
+unwrap_used   = "deny"
+expect_used   = "deny"
+panic         = "deny"
+# R-1.3: no swallowed errors.
+let_underscore_must_use = "deny"
+# Catch the tells the ai-code-review skill looks for.
+needless_pass_by_value = "warn"
+redundant_clone        = "warn"
+
+[workspace.dependencies]
+thiserror = "2"
+serde     = { version = "1", features = ["derive"] }
+
+[profile.release]
+lto           = "thin"
+codegen-units = 1
+
+# Benchmarks and profiling need symbols.
+[profile.bench]
+debug = true

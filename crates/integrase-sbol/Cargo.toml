@@ -1,0 +1,16 @@
+[package]
+name        = "integrase-sbol"
+description = "SBOL interop for Integrase. A thin adapter over sbol-rs, not an SBOL implementation."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[dependencies]
+integrase-core = { path = "../integrase-core", version = "0.0.0" }
+thiserror.workspace = true
+
+[lints]
+workspace = true

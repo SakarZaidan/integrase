@@ -1,0 +1,11 @@
+version: v2
+modules:
+  - path: .
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE
+# Wire compatibility is the one class of regression that breaks users silently
+# and at a distance, and the one a human reviewer reliably fails to catch.

@@ -445,7 +445,11 @@ path does not.
 looks like. The architectural requirement is only that the encoding is computed from the verdict
 rather than authored per-diagram, so it cannot silently disagree with the model.
 
-**Rejected: 3D construct rendering.** The brief asks for it. Genetic constructs are linear
+**Revised 2026-09-15: 3D is in scope, but not for constructs.** Subplan 27 places it where the data
+is genuinely three-dimensional (RNA secondary structure, protein structure, supercoiling). The
+argument below still holds for *constructs* specifically and is retained for that reason.
+
+**Rejected for constructs: 3D construct rendering.** The brief asks for it. Genetic constructs are linear
 sequences, and SBOL Visual specifies a 2D glyph language because that is what communicates. 3D would
 be a demo, not a user need. Subplan 13 argues this properly.
 
@@ -455,7 +459,7 @@ be a demo, not a user need. Subplan 13 argues this properly.
 
 | Brief subsystem | Status | Instead |
 |---|---|---|
-| Circuit-logic compilation | Deferred past v1.0 | Import Cello's UCF and SBOL output. Cello did this well; it is dormant, not wrong. |
+| Circuit-logic compilation | **In scope (revised 2026-09-15)** | Cello is BSD-2-Clause with 142 forks. Fork and port incrementally, using its published results as the correctness oracle, rather than reimplementing. Subplan 25. |
 | ML-guided generative design | Phase 3 | Evo 2 is open-weight and better than anything we would train. Integrate, do not compete. |
 | Genome-scale FM-index search | Built when a scenario needs it | Subplan 11 decides whether any real scenario does. |
 

@@ -1,0 +1,9 @@
+# Develop on stable; verify the MSRV floor separately in CI.
+#
+# Pinning this file to the MSRV (1.93, set by sbol-rs per subplan 23) would make
+# every contributor build with the oldest compiler we support, which is the wrong
+# default: you want the best diagnostics locally and the compatibility guarantee
+# checked mechanically. CI runs a dedicated `cargo +1.93 check` job for that.
+[toolchain]
+channel    = "stable"
+components = ["rustfmt", "clippy"]

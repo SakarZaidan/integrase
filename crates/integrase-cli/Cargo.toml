@@ -1,0 +1,27 @@
+[package]
+name        = "integrase-cli"
+description = "Command-line interface for Integrase."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[[bin]]
+name = "integrase"
+path = "src/main.rs"
+
+[dependencies]
+integrase = { path = "../integrase", version = "0.0.0" }
+clap      = { version = "4", features = ["derive"] }
+anyhow    = "1"
+
+# R-1.1: anyhow is permitted in binaries and forbidden in library public APIs.
+# unwrap/expect relax here for the same reason: this is the top of the stack.
+[lints.rust]
+missing_docs = "deny"
+
+[lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
