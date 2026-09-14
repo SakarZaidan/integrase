@@ -24,8 +24,8 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 02 Idea validation and competitive landscape
 - [x] 03 Novelty, uniqueness, and feasibility rating
 - [x] 04 Resources and data
-- [ ] 05 Technology stack, end to end
-- [ ] 06 Per-subsystem architecture
+- [x] 05 Technology stack, end to end
+- [x] 06 Per-subsystem architecture
 - [ ] 07 Engineering principles and rules
 - [ ] 08 AI/ML architecture and plan
 - [ ] 09 Performance engineering
@@ -68,7 +68,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] Em dash check passes: `planning/../tools/check-voice.sh` reports no violations (the
       checker must exclude its own pattern definition, or it will always match itself)
 - [ ] Banned-vocabulary grep across `planning/` returns nothing outside quoted context
-- [ ] Every Mermaid diagram parses under a headless renderer
+- [x] Every Mermaid diagram parses: `tools/check-mermaid.sh` (verified in both directions)
 - [ ] Every subplan's open questions resolve in `FINAL-DECISION.md`, `TODO.md`, or `REQUESTS.md`
 - [ ] `git log` shows owner identity only, no AI co-author trailers
 - [ ] `prompt.txt` is not tracked
@@ -88,12 +88,17 @@ dropped when that subplan gets written.
 - [ ] Is `bio`'s FM-index fast enough at genome scale for our targets (benchmark, not opinion) -> **09**
 - [x] ~~iGEM Registry licensing~~ CC BY-SA. ShareAlike applies to redistributed data.
 - [x] ~~SBML / SED-ML / BioModels~~ BioModels is CC0. Export target for iBioSim interop.
-- [ ] Cello 2.0 UCF format, needed to import Cello outputs -> **06**
+- [ ] Cello 2.0 UCF format specifics, needed for the import path -> **11**
 - [ ] Verify exact license terms on Evo 2 weights before depending on them -> **08**
 - [ ] Find a second independent expression dataset for out-of-distribution calibration -> **08**
 - [ ] Decide whether the Python SDK depends on `sbol-py`, pySBOL3, or bundles its own build -> **15**
 - [ ] Open the `sbol-py` PyPI conversation with SynBioDex -> blocks Python packaging in **15**
 - [ ] Extend dependency vetting to cover data licensing, not just code -> **07**
+- [ ] Benchmark `bio`'s FM-index at realistic sizes before committing -> **09**
+- [ ] Does the screening audit log need durable storage before Phase 3 -> **24**
+- [ ] Firefox / WebGL2 fallback strategy -> **13**
+- [ ] Exact visual encoding per `DomainVerdict` variant -> **13**, **14**
+- [ ] `Screenable` trait surface: what a backend gets to see -> **24**
 
 ---
 
