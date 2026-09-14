@@ -17,7 +17,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] `PROGRESS.md`
 - [x] `TODO.md`
 - [x] `REQUESTS.md`
-- [ ] `planning/decisions/0000-adr-template.md` and `decisions/README.md`
+- [x] `planning/decisions/0000-adr-template.md` and `decisions/README.md`
 
 ### Subplans
 - [x] 01 Project identity and naming  -> **Integrase**
@@ -61,8 +61,8 @@ Target: complete planning folder, then owner review before any implementation co
       moment a second contributor exists. See subplan 19.
 
 ### Synthesis
-- [ ] `FINAL-DECISION.md`
-- [ ] `ARCHITECTURE.md` with top-level plus per-subsystem Mermaid diagrams
+- [x] `FINAL-DECISION.md`
+- [x] `ARCHITECTURE.md` with top-level plus per-subsystem Mermaid diagrams (5 diagrams, all parse)
 
 ### Verification before checkpoint
 - [ ] Em dash check passes: `planning/../tools/check-voice.sh` reports no violations (the
@@ -145,3 +145,57 @@ Tracked in full in `REQUESTS.md`. Summary:
 - ~~**Curated sequence-of-concern reference data.**~~ **RESOLVED** by subplan 24. SecureDNA is free,
   runs locally, uses an oblivious protocol so no one holds the database, and ships a test HDB so CI
   needs no credentials.
+
+---
+
+## Per-subplan open items
+
+Each subplan ends with its own open items: **80 across 21 subplans**. They are not
+duplicated here, deliberately. This file is a prioritised near-term list, and pasting 80 items
+into it would make it unreadable and therefore unused, which is how a TODO file stops being trusted.
+
+**The rule:** a subplan's own "Open items" section is authoritative for that subsystem. An item gets
+promoted into the list above when it blocks near-term work, and into `REQUESTS.md` when only the
+owner can resolve it. Everything else stays where the context lives.
+
+To see them all:
+
+```
+for f in planning/subplans/*.md; do
+  sed -n '/^## Open items/,$p' "$f" | grep '^- \[ \]' | sed "s|^|$(basename $f): |"
+done
+```
+
+Counts by subplan:
+
+- `01-project-identity-and-naming.md`: 3 open
+- `04-resources-and-data.md`: 4 open
+- `05-technology-stack.md`: 5 open
+- `06-subsystem-architecture.md`: 5 open
+- `07-engineering-principles.md`: 3 open
+- `08-ml-architecture.md`: 6 open
+- `09-performance-engineering.md`: 4 open
+- `10-security-and-threat-model.md`: 5 open
+- `11-scenarios-and-edge-cases.md`: 2 open
+- `12-code-organization-and-api-design.md`: 3 open
+- `13-frontend-and-visualization.md`: 4 open
+- `14-brand-and-visual-design.md`: 3 open
+- `15-backend-and-api-design.md`: 4 open
+- `16-biophysical-modeling-accuracy.md`: 3 open
+- `17-testing-strategy.md`: 4 open
+- `18-cicd-and-release.md`: 5 open
+- `19-contribution-and-governance.md`: 3 open
+- `20-documentation-plan.md`: 3 open
+- `21-roadmap-and-milestones.md`: 3 open
+- `23-upstream-ecosystem-strategy.md`: 4 open
+- `24-screening-data-and-operations.md`: 4 open
+
+### Blocking before Phase 1a starts
+
+Promoted here because `FINAL-DECISION.md` names them as gating:
+
+- [ ] **ViennaRNA licensing.** Blocks the RBS baseline, the headline Phase 1 feature. If it cannot
+      be used, ship the model without the structure-dependent terms and widen the intervals, per
+      `FINAL-DECISION.md` decision 9.
+- [ ] **Second calibration dataset.** Without it the central claim is in-distribution only.
+- [ ] **Open the SynBioDex conversation** (`sbol-py` on PyPI, the `urn_design.ttl` observation).

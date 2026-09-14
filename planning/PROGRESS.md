@@ -80,12 +80,66 @@ so far:
   waits until CI exists, because requiring status checks that do not exist yet would block every
   planning PR.
 
-### In progress
+### Planning folder complete
 
-Subplan 01 (project identity and naming).
+All 24 subplans, `FINAL-DECISION.md`, and `ARCHITECTURE.md` are written and merged. Delivered
+across 11 pull requests, each self-reviewed against the `pr-review` criteria with findings recorded
+as a PR comment before merge.
+
+**The project is named Integrase.** GENESIS is retired. `github.com/SakarZaidan/integrase`, private,
+Apache-2.0, branch protection on, squash-only, Dependabot enabled.
+
+### What the research changed, beyond the five findings above
+
+Six more things were established by measurement rather than assumption during the subplans:
+
+- **`sbol-rs` is far larger than its listing suggested.** 14 crates, 348 machine-checkable validation
+  rules, Python bindings, a CLI, FASTA and GenBank conversion. A probe built against the real crates
+  confirmed 33 of 33 pySBOL3 fixtures round-trip losslessly. A year of planned work became a
+  dependency.
+- **The FM-index costs 39.4 bytes per base.** Measured. That projects to 113.8 GB for a human genome
+  and a practical ceiling near 136 Mbp here, which killed the brief's genome-scale search feature
+  with a number rather than an argument.
+- **SynBioHub requires authentication on every endpoint probed**, including one the docs describe as
+  public. Changed the testing strategy to a vendored corpus.
+- **SecureDNA resolves R-002**, the project's largest external dependency. Free, local, oblivious
+  protocol, and a test database ships in their repository so the highest-consequence test suite runs
+  in CI with no credentials.
+- **The four semantic colours are not distinguishable by luminance** (1.14:1 to 1.70:1). That settled
+  the visual grammar: texture carries confidence, hue carries category.
+- **One palette value failed WCAG** at 4.20:1 against a required 4.5:1, and was corrected.
+
+### Deviations from the brief, with reasons
+
+Beyond the three recorded above:
+
+- **Scope cut hard (subplan 02).** Circuit logic synthesis, generative design, 3D construct
+  rendering, the desktop app, and genome-scale search are all out of v1.0. TinkerCell attempted this
+  exact unification with a team and institutional backing and did not survive. The failure is
+  structural, not a matter of effort.
+- **Go arrives in Phase 3, not Phase 1 (subplan 05).** After the scope cut there is nothing for it to
+  orchestrate. The `proto/` contracts are written in Phase 1 so the layer slots in.
+- **3D rendering declined (subplan 13).** Constructs are linear; SBOL Visual specifies 2D because
+  that is what journals accept.
+- **The brief's student scenario is not supported in v1.0 (subplan 11)**, a downstream consequence of
+  the scope cut that took several documents to notice.
+- **Branch protection requires 0 approvals, not 1 (subplan 19).** GitHub forbids self-approval, so
+  requiring 1 with one contributor makes every PR unmergeable. PRs are mechanically required and the
+  review runs as recorded process instead.
+- **Two extra subplans and an ADR directory**, justified above.
+
+### The honest verdict
+
+Subplan 22 re-scored the project against subplan 03's rubric: **4.7 to 5.6 out of 10.** Feasibility
+and data availability improved by removing work. **Adoption did not move at all**, and that is the
+binding constraint. `sbol-rs` is objectively excellent, from the standards body, and has 5 stars. If
+that repository cannot get attention, quality alone will not get this one attention either.
+
+The recommendation is to build the small version and publish the calibration result, because a
+citable artifact is worth more to this project's survival than any additional feature.
 
 ### Next
 
-Subplans 01 through 24, then `FINAL-DECISION.md`, then `ARCHITECTURE.md`. Repository creation
-slots in immediately after subplan 01. Checkpoint for owner review at the end of the planning
-folder.
+Checkpoint. Owner review of the planning folder before any implementation code. After that, section
+16 steps 8 through 13: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, templates, the six skills, CI
+workflows, the repository scaffold, `docs/`, the README, and Phase 0.

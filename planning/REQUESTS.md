@@ -17,61 +17,6 @@ Last reviewed: 2026-09-14
 
 ## OPEN
 
-### R-002: Access to a curated sequence-of-concern reference dataset
-
-**Status:** **RESOLVED 2026-09-14** by subplan 24. No owner action needed.
-**Blocks:** any honest claim that biosafety screening is real rather than illustrative
-**Does not block:** gateway architecture, its interfaces, its test harness, or subplans 06/10/24
-
-**What is needed.** A usable reference dataset of sequences of concern, or credentialed access to
-a screening service that holds one, for the biosafety screening gateway.
-
-**Why.** This is the project's largest external dependency and engineering effort cannot route
-around it. Screening compares designed sequences against a curated set of regulated-pathogen and
-toxin sequences. That curated set is deliberately not a public download, for the obvious reason
-that publishing a precise list of what you screen for is itself a biosecurity problem. Research so
-far found two credible open-source screening implementations (`SecureDNA/SecureDNA`, Rust,
-Apache-2.0; `ibbis-bio/common-mechanism`, IBBIS) but has not yet confirmed whether either ships
-usable reference data or expects the operator to bring their own. Subplan 24 investigates this
-first, and this request may narrow or resolve on its own once that research is done.
-
-**What happens once resolved.** The screening gateway moves from "architecturally complete,
-refuses to export because it has no reference data" to actually functional. Until then the system
-will be built to fail closed: no reference data means no export, stated plainly in the UI and the
-docs rather than silently passing everything.
-
-**Note on scope.** If no access is obtainable, that is an acceptable outcome and not a project
-blocker. The correct behaviour is to ship the gateway with a documented integration point, fail
-closed by default, and be explicit in the README that screening requires the operator to supply or
-connect their own reference data. What is *not* acceptable is shipping a toy dataset and implying
-it constitutes real screening.
-
----
-
-### R-003: SynBioHub account
-
-**Status:** OPEN, raised 2026-09-14
-**Blocks:** nothing. Optional live integration checks only.
-
-**What is needed.** A registered account on synbiohub.org, or a decision that we do not want one.
-
-**Why.** Verified on 2026-09-14 that the public SynBioHub API requires authentication for every
-endpoint probed, including `/rootCollections`, which the documentation describes as public. All six
-returned `401 Login required`.
-
-This does **not** block CI or testing. Subplan 04 resolves that by vendoring the `sbol-rs` fixture
-corpus (343 files, MIT OR Apache-2.0) as the test set, which is a better answer than putting
-credentials in CI regardless. An account is useful for development and for optional manual
-integration checks against real registry content.
-
-Registering an account on an external service under the owner's name is their decision, not an
-engineering call, which is why this is here rather than done.
-
-**What happens once resolved.** Live SynBioHub import becomes testable manually. Credentials go in
-a local `.env`, never in CI, per subplan 10.
-
----
-
 ### R-001: GitHub organization creation
 
 **Status:** OPEN, raised 2026-09-14, interim workaround agreed
@@ -102,6 +47,32 @@ operate inside it.
 
 ---
 
+---
+
+### R-003: SynBioHub account
+
+**Status:** OPEN, raised 2026-09-14
+**Blocks:** nothing. Optional live integration checks only.
+
+**What is needed.** A registered account on synbiohub.org, or a decision that we do not want one.
+
+**Why.** Verified on 2026-09-14 that the public SynBioHub API requires authentication for every
+endpoint probed, including `/rootCollections`, which the documentation describes as public. All six
+returned `401 Login required`.
+
+This does **not** block CI or testing. Subplan 04 resolves that by vendoring the `sbol-rs` fixture
+corpus (343 files, MIT OR Apache-2.0) as the test set, which is a better answer than putting
+credentials in CI regardless. An account is useful for development and for optional manual
+integration checks against real registry content.
+
+Registering an account on an external service under the owner's name is their decision, not an
+engineering call, which is why this is here rather than done.
+
+**What happens once resolved.** Live SynBioHub import becomes testable manually. Credentials go in
+a local `.env`, never in CI, per subplan 10.
+
+---
+
 ## RESOLVED
 
 ### R-000: Initial project decisions
@@ -117,3 +88,34 @@ before planning started.
 | How to handle the GitHub organization requirement given no API exists for it? | **Personal repo now, transfer later.** See R-001. |
 | Which license? | **Apache-2.0.** Matches `sbol-rs` upstream, carries an express patent grant (which matters in a patent-dense field), and passes institutional legal review without friction. AGPL was considered and rejected: it is banned by corporate policy at many of the exact industrial adopters a standards-layer tool needs. |
 | Where does the first checkpoint fall in the brief's 13-step sequence? | **End of the planning folder.** No implementation code until the owner has read the planning documents. |
+
+---
+
+### R-002: Access to a curated sequence-of-concern reference dataset
+
+**Status:** **RESOLVED 2026-09-14** by subplan 24. No owner action needed.
+**Blocks:** any honest claim that biosafety screening is real rather than illustrative
+**Does not block:** gateway architecture, its interfaces, its test harness, or subplans 06/10/24
+
+**What is needed.** A usable reference dataset of sequences of concern, or credentialed access to
+a screening service that holds one, for the biosafety screening gateway.
+
+**Why.** This is the project's largest external dependency and engineering effort cannot route
+around it. Screening compares designed sequences against a curated set of regulated-pathogen and
+toxin sequences. That curated set is deliberately not a public download, for the obvious reason
+that publishing a precise list of what you screen for is itself a biosecurity problem. Research so
+far found two credible open-source screening implementations (`SecureDNA/SecureDNA`, Rust,
+Apache-2.0; `ibbis-bio/common-mechanism`, IBBIS) but has not yet confirmed whether either ships
+usable reference data or expects the operator to bring their own. Subplan 24 investigates this
+first, and this request may narrow or resolve on its own once that research is done.
+
+**What happens once resolved.** The screening gateway moves from "architecturally complete,
+refuses to export because it has no reference data" to actually functional. Until then the system
+will be built to fail closed: no reference data means no export, stated plainly in the UI and the
+docs rather than silently passing everything.
+
+**Note on scope.** If no access is obtainable, that is an acceptable outcome and not a project
+blocker. The correct behaviour is to ship the gateway with a documented integration point, fail
+closed by default, and be explicit in the README that screening requires the operator to supply or
+connect their own reference data. What is *not* acceptable is shipping a toy dataset and implying
+it constitutes real screening.
