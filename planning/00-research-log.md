@@ -505,19 +505,110 @@ over-claiming.
 
 Things I could not resolve from metadata and search, listed so they do not get silently dropped.
 
-1. `sbol-rs` API ergonomics, round-trip fidelity on real SynBioHub files, SBOL 2 to 3 conversion
-   losslessness, MSRV. Needs hands-on evaluation. -> subplan 23.
+1. ~~`sbol-rs` API ergonomics, round-trip fidelity, SBOL 2 to 3 losslessness, MSRV.~~ **ANSWERED,
+   section 9.** Ergonomics good, SBOL3 round-trips lossless, 2<->3 semantically faithful but not
+   syntactically idempotent, MSRV 1.93.
 2. Whether SecureDNA can be self-hosted, and its query protocol. -> subplan 24.
 3. Whether the Common Mechanism ships usable reference data or expects the operator to supply it.
    -> subplan 24, and almost certainly `REQUESTS.md`.
-4. SynBioHub rate limits and whether the public instance is stable enough for CI contract tests.
-   -> subplan 17.
-5. Which RDF crate `sbol-rs` builds on. -> subplan 05 and 23, to avoid stacking two RDF layers.
+4. ~~SynBioHub rate limits and CI suitability.~~ **ANSWERED, section 10.** Moot: the API requires
+   authentication, so CI uses the vendored `sbol-rs` corpus instead.
+5. ~~Which RDF crate `sbol-rs` builds on.~~ **ANSWERED, section 9.** The Oxigraph family. Use
+   Oxigraph if we need RDF primitives; do not add `sophia`.
 6. Whether `bio`'s FM-index performance is adequate at genome scale for our targets, which needs a
    benchmark, not an opinion. -> subplan 09.
-7. Current licensing and access terms for the iGEM Registry of Standard Biological Parts. Not yet
-   researched. -> subplan 04.
-8. SBML and SED-ML integration surface. The brief mentions BioModels and SED-ML but I have not
-   researched them. -> subplan 04.
+7. ~~iGEM Registry licensing.~~ **ANSWERED, section 11.** CC BY-SA. ShareAlike applies to
+   redistributed data derivatives.
+8. ~~SBML and SED-ML integration surface.~~ **ANSWERED, section 11.** BioModels is CC0. Standards
+   are open. Relevant mainly as an export target for iBioSim interop.
 9. Cello 2.0's UCF (user constraint file) format, which is the thing we would need to read to
    import Cello outputs. -> subplan 06.
+
+---
+
+## 9. Hands-on evaluation of `sbol-rs` (2026-09-14)
+
+Cloned the repo and built a probe against the real crates rather than reasoning from metadata.
+Full writeup in subplan 23. Headline numbers, all `[verified]`:
+
+```
+[1] build + validate:             OK (1 object)
+[2] turtle round-trip:            1 in, 1 out
+[3] pySBOL3 fixture round-trips:  33 lossless, 0 lossy, 0 failed
+[4] SBOL2->3->2 on  7 fixtures:   0 triple-identical, 7 differ, 0 errored
+```
+
+It is much larger than the crates.io listing suggested: **14 crates**, including `sbol-py`
+(Python bindings unifying SBOL 2 and 3, claimed 8x to 2300x faster than pySBOL3), `sbol-genbank`,
+`sbol-fasta`, and `sbol-cli`. **348 machine-checkable validation rules** (109 for SBOL 3.1.0
+Appendix B, 239 for SBOL 2.3.0). 343 test fixture files. MSRV 1.93. MIT OR Apache-2.0. Zenodo DOI.
+
+**Result 4 needs care and nearly became an overclaim.** Zero triple-identical round-trips looks
+damning until you measure what differs. Most rows are symmetric (n lost, n added) on `sbol:role`
+and `sbol:type`, which turn out to be `biopax:Dna` and `so:0000167`: the conversion canonicalizes
+ontology URIs. Same meaning, different spelling. The one genuine asymmetry (`urn_design.ttl`) uses
+`urn:` identifiers with `persistentIdentity` and `version`, concepts SBOL 3 removed, so a
+2 -> 3 -> 2 trip has nowhere to store them. **Semantically faithful, not syntactically idempotent,
+and it cannot be.** My test was stricter than the claim.
+
+**What this changes:** answers open questions 1 and 5. The RDF layer is the Oxigraph family
+(`oxrdf`, `oxttl`, `oxrdfxml`, `oxjsonld`), so we use Oxigraph if we ever need RDF primitives
+rather than introducing `sophia` alongside. And our own conformance tests must compare
+semantically, never on triples, or they will fail on correct behaviour and get weakened until they
+pass.
+
+**The uncomfortable part:** this repository is objectively excellent and has 5 stars. That is the
+single clearest piece of evidence for subplan 03's adoption score.
+
+## 10. SynBioHub requires authentication (2026-09-14)
+
+`[verified]`. Probed six endpoints on the public instance; all returned `401 Login required`,
+including `/rootCollections`, which the documentation describes as public.
+
+```
+/public/igem/BBa_B0034/1/sbol    401      /public/igem/BBa_B0034/1/gb   401
+/public/igem/BBa_B0034/1/sbolnr  401      /rootCollections              401
+/public/igem/BBa_B0034/1/fasta   401
+```
+
+The site itself is up (the HTML shell returns 200), so this is an API auth policy, not an outage.
+May be a configuration state rather than permanent policy; either way, plan for auth.
+
+**What this changes:** partially answers open question 4. Contract tests cannot hit SynBioHub
+anonymously in CI, and putting credentials in CI to fetch fixtures is something subplan 10 should
+object to. Use the `sbol-rs` fixture corpus (MIT/Apache-2.0, 343 files) as the vendored test set
+and treat live SynBioHub as an optional manual check. A SynBioHub account is still worth having for
+development, which is `REQUESTS.md` R-003.
+
+## 11. Data licensing (2026-09-14)
+
+`[secondary]` unless noted.
+
+| Source | License | Note |
+|---|---|---|
+| iGEM Registry (84,000+ parts) | **CC BY-SA** | ShareAlike. Redistributed derivatives of the *data* inherit it. Must not be silently baked into an Apache-2.0 crate. |
+| BioModels (1,000+ curated models) | **CC0** | Cleanest licensing available. Safest source for bundled SBML fixtures. |
+| `sbol-rs` fixtures (343 files) | MIT OR Apache-2.0 `[verified]` | Compatible with ours. |
+| SBOL / SBOL Visual / SBML / SED-ML / OMEX specs | Open standards | Fine. |
+
+**What this changes:** answers open questions 7 and 8. Subplan 07's dependency vetting has to cover
+**data** licensing, not just code licensing. Most dependency policies miss that distinction and it
+is exactly the kind of thing that is expensive to unwind later.
+
+Sources: https://parts.igem.org/Registry_license_terms , https://www.ebi.ac.uk/biomodels/ ,
+https://co.mbine.org/standards/
+
+## 12. Calibration data candidate (2026-09-14)
+
+`[secondary]`. **Kosuri et al. 2013, PNAS**: all combinations of 114 promoters and 111 RBSs,
+12,653 constructs, measured in E. coli by massively parallel reporter assay.
+https://www.pnas.org/doi/10.1073/pnas.1301301110
+
+The canonical combinatorial promoter/RBS expression dataset, widely reused, which means its quirks
+are documented.
+
+**What this changes:** gives subplan 08 a concrete starting dataset. It is not sufficient alone.
+Calibration measured on a held-out split of one MPRA library tests interpolation, not whether an
+interval holds on a different library, lab, or growth condition, which is what users actually need.
+A second independent dataset is required for any honest out-of-distribution claim. Related:
+https://academic.oup.com/nar/article/52/13/e58/7691520 on cross-context 5'UTR transfer.

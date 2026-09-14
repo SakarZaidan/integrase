@@ -23,7 +23,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 01 Project identity and naming  -> **Integrase**
 - [x] 02 Idea validation and competitive landscape
 - [x] 03 Novelty, uniqueness, and feasibility rating
-- [ ] 04 Resources and data
+- [x] 04 Resources and data
 - [ ] 05 Technology stack, end to end
 - [ ] 06 Per-subsystem architecture
 - [ ] 07 Engineering principles and rules
@@ -42,7 +42,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] 20 Documentation plan
 - [ ] 21 Roadmap, phases, milestones
 - [ ] 22 Final rating and verdict
-- [ ] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
+- [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
 - [ ] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
 
 ### Repository
@@ -80,17 +80,20 @@ Target: complete planning folder, then owner review before any implementation co
 Each is assigned to the subplan that has to answer it. Listed here so they cannot be silently
 dropped when that subplan gets written.
 
-- [ ] `sbol-rs` API ergonomics, round-trip fidelity on real SynBioHub files, SBOL 2 to 3 conversion
-      losslessness, MSRV -> **23**
+- [x] ~~`sbol-rs` evaluation~~ Done. Adopt wholesale, see subplan 23.
 - [ ] Can SecureDNA be self-hosted, and what is its query protocol -> **24**
 - [ ] Does the Common Mechanism ship usable reference data or require the operator to supply it -> **24**
-- [ ] SynBioHub rate limits, and whether the public instance is dependable enough for CI contract
-      tests -> **17**
-- [ ] Which RDF crate `sbol-rs` builds on, so we do not stack two RDF layers -> **05**, **23**
+- [x] ~~SynBioHub CI suitability~~ Moot: API requires auth. Vendor the `sbol-rs` corpus instead.
+- [x] ~~Which RDF crate `sbol-rs` uses~~ Oxigraph family. Do not add `sophia`.
 - [ ] Is `bio`'s FM-index fast enough at genome scale for our targets (benchmark, not opinion) -> **09**
-- [ ] iGEM Registry of Standard Biological Parts licensing and access terms -> **04**
-- [ ] SBML, SED-ML, and BioModels integration surface -> **04**
+- [x] ~~iGEM Registry licensing~~ CC BY-SA. ShareAlike applies to redistributed data.
+- [x] ~~SBML / SED-ML / BioModels~~ BioModels is CC0. Export target for iBioSim interop.
 - [ ] Cello 2.0 UCF format, needed to import Cello outputs -> **06**
+- [ ] Verify exact license terms on Evo 2 weights before depending on them -> **08**
+- [ ] Find a second independent expression dataset for out-of-distribution calibration -> **08**
+- [ ] Decide whether the Python SDK depends on `sbol-py`, pySBOL3, or bundles its own build -> **15**
+- [ ] Open the `sbol-py` PyPI conversation with SynBioDex -> blocks Python packaging in **15**
+- [ ] Extend dependency vetting to cover data licensing, not just code -> **07**
 
 ---
 
