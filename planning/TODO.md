@@ -40,8 +40,8 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 18 CI/CD and release engineering
 - [x] 19 Contribution and governance model
 - [x] 20 Documentation plan
-- [ ] 21 Roadmap, phases, milestones
-- [ ] 22 Final rating and verdict
+- [x] 21 Roadmap, phases, milestones
+- [x] 22 Final rating and verdict
 - [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
 - [x] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
 
@@ -89,7 +89,7 @@ dropped when that subplan gets written.
 - [ ] Is `bio`'s FM-index fast enough at genome scale for our targets (benchmark, not opinion) -> **09**
 - [x] ~~iGEM Registry licensing~~ CC BY-SA. ShareAlike applies to redistributed data.
 - [x] ~~SBML / SED-ML / BioModels~~ BioModels is CC0. Export target for iBioSim interop.
-- [ ] Cello UCF import: no v1.0 scenario motivates it. Revisit when one exists. -> **21**
+- [x] ~~Cello UCF import~~ Phase 4 candidate only, and uncommitted: no scenario motivates it.
 - [ ] Verify exact license terms on Evo 2 weights before depending on them -> **08**
 - [ ] RNA secondary structure dependency: ViennaRNA licensing or an alternative. **Blocks the RBS
       baseline.** -> **16**
@@ -100,6 +100,8 @@ dropped when that subplan gets written.
 - [ ] Verify hatch/stipple textures stay legible at 12px in both render backends -> **13**, **14**
 - [ ] Confirm font licensing (Inter, JetBrains Mono, Source Serif 4) before bundling -> **14**
 - [ ] Design the `cleared_token` format: signed, expiring, bound to a design hash -> **15**
+- [ ] **Resolve the ViennaRNA licensing question before Phase 1 starts.** Blocks the RBS baseline,
+      which is the headline Phase 1 feature. -> **16**, **08**
 - [ ] Verify the <5ms loopback gRPC assumption before Phase 3 -> **09**, affects **05**
 - [ ] **Find a second independent expression dataset.** On the critical path: without it the
       calibration claim is in-distribution only. -> **08**

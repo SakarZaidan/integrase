@@ -350,16 +350,48 @@ An export function therefore reads:
 
 ```rust
 // Cannot be called with an unscreened Design. Will not compile.
-pub fn export_sbol(design: &Cleared<Design>, w: impl Write) -> Result<(), ExportError>;
+pub fn export_for_synthesis(design: &Cleared<Design>, fmt: VendorFormat, w: impl Write)
+    -> Result<(), ExportError>;
 ```
 
 This is the concrete answer to the brief's requirement that it be obvious nothing reaches export
 without passing the gateway. It is obvious because the alternative does not compile.
 
+### Two export classes (amended 2026-09-14 by subplan 21)
+
+Sequencing the work in subplan 21 exposed a gap here. Taken literally, "export requires `Cleared`"
+plus "`NullBackend` refuses everything" means an unconfigured user cannot even save their own design
+back to SBOL, which would make the tool useless and over-applies the brief. The brief restricts
+"only at the boundary where a design would leave the system toward physical synthesis."
+
+| Class | Examples | Gated |
+|---|---|---|
+| **Interchange** | SBOL round-trip, saving a working file, sharing with a collaborator, SVG figures | **No.** The design came from the ecosystem and returns to it. |
+| **Synthesis-bound** | The explicit "prepare for ordering" flow, vendor order sheets, FASTA or GenBank produced by it | **Yes.** `Cleared<T>` required. |
+
+**The distinction is the flow, not the file format.** The same FASTA bytes are interchange when a
+user saves a working file and synthesis-bound when produced by the ordering path. So the gate lives
+on the function, not on the serializer:
+
+```rust
+// Interchange. Not gated.
+pub fn write_sbol(design: &Design, w: impl Write) -> Result<(), ExportError>;
+
+// Synthesis-bound. Cannot be called with an unscreened design.
+pub fn export_for_synthesis(design: &Cleared<Design>, fmt: VendorFormat, w: impl Write)
+    -> Result<(), ExportError>;
+```
+
+Partly a loophole, and subplan 10's evasion table already records the honest version: a user who
+copies a sequence out of the interface by hand defeats any gate. Gating interchange would not close
+that and would only make the tool worse for the researchers who are the overwhelming majority. The
+gate's value is that **the convenient path to ordering passes through screening**, not that every
+byte is imprisoned.
+
 ### Fail closed, and say so
 
-`NullBackend` is the default when no screening reference data is configured, and it **refuses
-everything**. This follows directly from `REQUESTS.md` R-002: the curated sequence-of-concern data
+`NullBackend` is the default when no screening backend is configured, and it **refuses everything on
+the synthesis-bound path**. This follows directly from `REQUESTS.md` R-002: the curated sequence-of-concern data
 is not publicly obtainable, so the common case for a new user is having no reference data at all.
 
 Three possible behaviours, and only one is honest:
@@ -368,7 +400,7 @@ Three possible behaviours, and only one is honest:
 |---|---|
 | Pass everything when unconfigured | Silently unsafe. Users would believe they were screened. Rejected. |
 | Ship a toy dataset | Worse. Implies real screening exists. Rejected explicitly in subplan 04. |
-| **Refuse, and state why** | The design is still fully usable for analysis and simulation. Only the export path is closed, with a message saying no screening backend is configured and how to configure one. |
+| **Refuse, and state why** | The design stays fully usable for analysis, simulation, and interchange export. Only the synthesis-bound path is closed, with a message saying no screening backend is configured and how to configure one. |
 
 The sandbox stays open. Design, simulate, inspect, iterate: none of that is gated, ever. Only the
 boundary toward physical synthesis is.
