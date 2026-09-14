@@ -27,7 +27,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 05 Technology stack, end to end
 - [x] 06 Per-subsystem architecture
 - [x] 07 Engineering principles and rules
-- [ ] 08 AI/ML architecture and plan
+- [x] 08 AI/ML architecture and plan
 - [ ] 09 Performance engineering
 - [ ] 10 Security and threat modeling
 - [ ] 11 Problems, scenarios, use cases, edge cases
@@ -35,7 +35,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] 13 Frontend and visualization engineering
 - [ ] 14 Brand and visual design system
 - [ ] 15 Backend and API design
-- [ ] 16 Simulation and biophysical modeling accuracy
+- [x] 16 Simulation and biophysical modeling accuracy
 - [ ] 17 Testing strategy
 - [ ] 18 CI/CD and release engineering
 - [ ] 19 Contribution and governance model
@@ -90,7 +90,11 @@ dropped when that subplan gets written.
 - [x] ~~SBML / SED-ML / BioModels~~ BioModels is CC0. Export target for iBioSim interop.
 - [ ] Cello 2.0 UCF format specifics, needed for the import path -> **11**
 - [ ] Verify exact license terms on Evo 2 weights before depending on them -> **08**
-- [ ] Find a second independent expression dataset for out-of-distribution calibration -> **08**
+- [ ] RNA secondary structure dependency: ViennaRNA licensing or an alternative. **Blocks the RBS
+      baseline.** -> **16**
+- [ ] Benchmark smaller genomic LMs against Evo 2 variants at 12 GB VRAM -> **08**
+- [ ] **Find a second independent expression dataset.** On the critical path: without it the
+      calibration claim is in-distribution only. -> **08**
 - [ ] Decide whether the Python SDK depends on `sbol-py`, pySBOL3, or bundles its own build -> **15**
 - [ ] Open the `sbol-py` PyPI conversation with SynBioDex -> blocks Python packaging in **15**
 - [ ] Extend dependency vetting to cover data licensing, not just code -> **07**
