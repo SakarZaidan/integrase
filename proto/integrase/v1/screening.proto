@@ -1,0 +1,54 @@
+// The screening gateway's wire contract.
+syntax = "proto3";
+
+package integrase.v1;
+
+enum HitClass {
+  HIT_CLASS_UNSPECIFIED        = 0;
+  HIT_CLASS_REGULATED_PATHOGEN = 1;
+  HIT_CLASS_TOXIN              = 2;
+  HIT_CLASS_UNCLASSIFIED       = 3;
+}
+
+message Hit {
+  uint64   start  = 1;
+  uint64   end    = 2;
+  HitClass class  = 3;
+  string   detail = 4;  // the backend's own description, passed through verbatim
+}
+
+message ScreenRequest {
+  bytes  sequence  = 1;
+  string design_id = 2;
+  // Nothing else, deliberately. A backend needs sequence to do its job;
+  // names, annotations, and user identity would be a privacy leak with no
+  // screening benefit. The natural drift is toward sending more context
+  // "in case it helps", and this comment exists to resist it.
+}
+
+message ScreenResponse {
+  repeated Hit hits           = 1;
+  string       policy_version = 2;
+  string       backend        = 3;
+  // Present only when hits is empty. Binds a clearance to one exact design.
+  ClearedToken cleared_token  = 4;
+}
+
+// The type-level guarantee cannot cross a wire boundary, so it degrades to a
+// server-side check. The server verifies this token references a real,
+// unexpired, current-policy verdict for this exact design hash.
+//
+// This is the third documented weakening of the export gate (Rust compile-time
+// -> Python runtime -> this). Subplan 17 requires that missing, forged, stale,
+// and mismatched tokens are each separately tested. The list of weakenings is
+// not allowed to grow silently.
+message ClearedToken {
+  string design_hash    = 1;
+  string policy_version = 2;
+  int64  expires_at     = 3;  // unix seconds
+  bytes  signature      = 4;
+}
+
+service ScreeningService {
+  rpc Screen(ScreenRequest) returns (ScreenResponse);
+}

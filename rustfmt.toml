@@ -1,0 +1,4 @@
+# Formatting is not an opinion here, it is enforced in CI so nobody argues about
+# it in review (subplan 07, R-8).
+max_width = 100
+edition    = "2024"

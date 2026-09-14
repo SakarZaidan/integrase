@@ -1,0 +1,66 @@
+// Confidence types.
+//
+// These messages are the wire contract for the project's central principle.
+// They are written in Phase 1 and not served until Phase 3, deliberately: it
+// forces the semantic model to be pinned down once, and makes the Phase 3
+// service an implementation rather than a redesign. If these need changing in
+// Phase 3, Phase 1's design was wrong, and that is worth finding out.
+syntax = "proto3";
+
+package integrase.v1;
+
+// An inclusive interval around a predicted value.
+message Interval {
+  double lower = 1;
+  double upper = 2;
+}
+
+// Why an input was judged inside or outside a model's validated domain.
+message DomainReason {
+  oneof reason {
+    HostMismatch              host_mismatch               = 1;
+    NonCanonicalStartCodon    non_canonical_start_codon   = 2;
+    SpacerOutOfRange          spacer_out_of_range         = 3;
+    LengthOutOfRange          length_out_of_range         = 4;
+    StrongSecondaryStructure  strong_secondary_structure  = 5;
+    EmbeddingDistance         embedding_distance          = 6;
+  }
+
+  message HostMismatch             { string got = 1; string expected = 2; }
+  message NonCanonicalStartCodon   { string codon = 1; }
+  message SpacerOutOfRange         { uint64 length = 1; }
+  message LengthOutOfRange         { uint64 length = 1; }
+  message StrongSecondaryStructure { double free_energy_kcal_per_mol = 1; }
+  message EmbeddingDistance        { double distance = 1; }
+}
+
+// Whether an input falls inside the range where a model was validated.
+//
+// A oneof rather than a string, so a client must handle the variants instead of
+// reading a label it can ignore.
+message DomainVerdict {
+  oneof verdict {
+    InDistribution    in_distribution     = 1;
+    Marginal          marginal            = 2;
+    OutOfDistribution out_of_distribution = 3;
+    Uncalibrated      uncalibrated        = 4;
+  }
+
+  message InDistribution    { double similarity = 1; }
+  message Marginal          { double similarity = 1; DomainReason reason = 2; }
+  message OutOfDistribution { DomainReason reason = 1; }
+  message Uncalibrated      {}
+}
+
+// A predicted quantity together with everything needed to judge it.
+//
+// `domain` is required and `interval` is absent only for the uncalibrated case.
+// A message with optional uncertainty fields is one where a client can ignore
+// them, which would defeat the entire purpose of this service existing.
+message Prediction {
+  double        value            = 1;
+  Interval      interval         = 2;  // absent only when uncalibrated
+  double        nominal_coverage = 3;
+  string        model_id         = 4;
+  DomainVerdict domain           = 5;
+}

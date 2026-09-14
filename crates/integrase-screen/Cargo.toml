@@ -1,0 +1,22 @@
+[package]
+name        = "integrase-screen"
+description = "The biosafety screening gateway. The only place Cleared<T> can be constructed."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+# Depends ONLY on integrase-core, deliberately (subplan 12, R-12.6).
+# This is the highest-consequence component in the system and it must stay
+# auditable in isolation: a reviewer should be able to read this crate and its
+# one dependency and see everything that affects a verdict. Every dependency
+# added here widens the audit surface and the supply-chain target.
+[dependencies]
+integrase-core = { path = "../integrase-core", version = "0.0.0" }
+thiserror.workspace = true
+serde.workspace     = true
+
+[lints]
+workspace = true
