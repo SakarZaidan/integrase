@@ -44,6 +44,13 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 22 Final rating and verdict
 - [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
 - [x] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
+- [x] 25 Circuit logic compilation *(scope restored, 2026-09-14)*
+- [x] 26 Generative design and foundation model integration *(scope restored)*
+- [x] 27 Structural and 3D visualization *(scope restored, redefined)*
+- [x] 28 Genome-scale indexing *(scope restored, corrects subplan 09)*
+- [x] 29 Verifiable Design Records *(new: the primary original contribution)*
+- [ ] 30 Adoption strategy *(new)*
+- [ ] 31 Sustainability and funding *(new)*
 
 ### Repository
 - [x] `gh repo create SakarZaidan/integrase --private`
@@ -100,8 +107,12 @@ dropped when that subplan gets written.
 - [ ] Verify hatch/stipple textures stay legible at 12px in both render backends -> **13**, **14**
 - [ ] Confirm font licensing (Inter, JetBrains Mono, Source Serif 4) before bundling -> **14**
 - [ ] Design the `cleared_token` format: signed, expiring, bound to a design hash -> **15**
-- [ ] **Resolve the ViennaRNA licensing question before Phase 1 starts.** Blocks the RBS baseline,
-      which is the headline Phase 1 feature. -> **16**, **08**
+- [ ] **Resolve the ViennaRNA licensing question before Phase 1 starts.** Blocks the RBS baseline
+      AND the RNA structure view. -> **16**, **08**, **27**
+- [ ] **Ask CIDAR Lab to license `Cello-UCF`.** No licence stated means we cannot ship UCFs. -> **25**
+- [ ] Draft `integrase-canon-v1`, the canonical design serialization the VDR digest depends on -> **29**
+- [ ] Approach SynBioDex re: `DesignProvenance` as an SBOL extension -> **29**
+- [ ] Re-benchmark both index tiers on a real genome, not synthetic DNA -> **28**
 - [ ] Verify the <5ms loopback gRPC assumption before Phase 3 -> **09**, affects **05**
 - [ ] **Find a second independent expression dataset.** On the critical path: without it the
       calibration claim is in-distribution only. -> **08**

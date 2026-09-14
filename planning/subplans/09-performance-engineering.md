@@ -12,7 +12,14 @@ nobody will meet.
 
 ---
 
-## The measurement that changes scope
+> **CORRECTED 2026-09-14.** The original version of this subplan concluded that genome-scale
+> indexing was out of scope. **That conclusion was wrong.** It generalised from a single library
+> (`rust-bio`), whose FM-index retains a full `u64` suffix array, to the whole approach. A
+> compressed index measured afterwards costs roughly a tenth as much memory. The original
+> measurement is kept below because it is still true of `rust-bio`; the conclusion drawn from it is
+> replaced in the section that follows. Subplan 28 owns the indexing strategy.
+
+## The measurement, and the wrong conclusion I drew from it
 
 Open question from the research log: is `bio`'s FM-index fast enough at genome scale? Answered by
 benchmark rather than opinion, on this machine (20 cores, 7 GB RAM), release build, deterministic
@@ -39,30 +46,48 @@ Nothing about query latency is a problem.
 
 **Practical ceiling on this machine: roughly 136 Mbp.**
 
-### What this means
+### The correction
 
-The brief specifies "fast motif and restriction-site search at genome scale" and a
-"multi-gigabyte genome import" scenario. **Neither is achievable with this approach, on this
-hardware, and the human-genome case is not achievable on most hardware.** 113.8 GB of RAM to index
-one genome is a cluster-scale requirement, not a laptop feature.
+I wrote, on the strength of the table above, that genome-scale indexing was out of scope. Then I
+benchmarked a compressed index. Same machine, same synthetic data, same method:
 
-Three honest responses, and we take the first:
+| Text | Index | Build | 1,000 × 20 bp search | Peak RSS | bytes/base |
+|---:|---|---:|---:|---:|---:|
+| 20 Mbp | `rust-bio` FMIndex | 2,720 ms | 120 µs | 752 MB | 39.4 |
+| 20 Mbp | `fm-index` FMIndex | 3,182 ms | 3,873 µs | **77 MB** | **~3.9** |
+| 20 Mbp | `fm-index` RLFMIndex | 3,298 ms | 8,099 µs | 81 MB | ~4.1 |
 
-1. **Scope it to what the users actually work on.** Plasmids and constructs are kilobases. Bacterial
-   genomes are megabases. Both are comfortably inside the ceiling, with room to spare. This
-   confirms subplan 02's assessment that genome-scale search was a capability without a
-   demonstrated user, and now there is a number behind that judgment instead of an opinion.
-2. Use a memory-efficient index (compressed suffix array, sampled suffix array, FM-index over a
-   2-bit packed alphabet). Real engineering, weeks of work, for a use case nobody has asked for.
-3. Claim it and hope nobody tries. Not an option.
+**A tenfold memory reduction for a twenty-five-fold search slowdown that lands at 2.9 µs per
+query.** Three microseconds is irrelevant in a tool where a human is waiting. I traded the wrong
+axis.
 
-**Decision: the documented supported range is up to bacterial genome scale (targeting 100 Mbp), and
-the documentation says so with this number in it.** Anything larger returns a clear error naming
-the limit, not an out-of-memory kill. Subplan 11 owns the edge case where a user imports something
-too large, and the correct behaviour is a useful refusal.
+Revised projections at ~3.9 bytes/base, including the text itself:
 
-This is a scope reduction driven by measurement, and it is the kind the brief asks for: a claim
-that could not be verified got checked, and it did not survive.
+| Organism | Genome | Projected | Was |
+|---|---:|---:|---:|
+| *E. coli* | 4.6 Mbp | 18 MB | 0.2 GB |
+| *S. cerevisiae* | 12.2 Mbp | 47 MB | 0.4 GB |
+| *D. melanogaster* | 143.7 Mbp | 0.6 GB | 5.3 GB |
+| Human GRCh38 | 3.1 Gbp | **~12 GB** | 113.8 GB |
+
+12 GB does not fit this 7 GB laptop. It fits any normal workstation, and the literature reports
+production FM-indexes under 3 GB for a human genome with 2-bit text packing and tuned sampling,
+which is a further three-to-fourfold available with engineering rather than invention.
+
+**Corrected decision: genome-scale indexing is in scope.** Subplan 28 owns the tiered strategy.
+The honest statement in the docs is a table of measured memory by organism and available RAM, not
+a refusal.
+
+### What I got wrong, and the rule that follows
+
+I benchmarked one implementation and generalised to the approach. The number was right and the
+inference was not. `rust-bio`'s FM-index is a general-purpose structure that keeps the suffix array
+for fast `locate`; that is a reasonable design and a bad fit for our constraint, which is memory.
+
+**Rule, for subplan 07: a benchmark licenses a claim about the thing benchmarked, and nothing
+wider.** Before concluding that a capability is infeasible, benchmark at least two implementations
+representing different points on the design curve. This cost a feature and would have shipped as a
+documented limitation that was simply false.
 
 ---
 
@@ -72,10 +97,12 @@ that could not be verified got checked, and it did not survive.
 
 | Operation | Target | Measured | Headroom |
 |---|---|---|---|
-| FM-index build, 5 Mbp | < 1 s | 494 ms | 2.0× |
-| FM-index build, 20 Mbp | < 4 s | 2,720 ms | 1.5× |
-| Motif search, 20 bp pattern | < 1 µs | ~0.12 µs | 8× |
-| Index memory | < 45 bytes/base | 39.4 | 1.14× |
+| Compressed index build, 5 Mbp | < 1 s | 567 ms | 1.8× |
+| Compressed index build, 20 Mbp | < 5 s | 3,182 ms | 1.6× |
+| Motif search, 20 bp, compressed | < 10 µs | 2.9 µs | 3.4× |
+| Motif search, 20 bp, uncompressed | < 1 µs | 0.12 µs | 8× |
+| **Index memory, compressed** | **< 5 bytes/base** | **~3.9** | 1.28× |
+| Index memory, uncompressed | < 45 bytes/base | 39.4 | 1.14× |
 | SBOL round-trip, typical design | < 10 ms | not yet measured | |
 | Reverse-complement, 1 Mbp | < 5 ms | not yet measured | |
 
@@ -99,7 +126,7 @@ Stated so they are designed for, marked so nobody mistakes them for results.
 
 | Thing | Why not |
 |---|---|
-| Mammalian-genome indexing | 113.8 GB. Out of scope, stated with the number. |
+| Mammalian indexing on a 7 GB machine | ~12 GB compressed. Out of reach *here*, in scope on normal hardware. Subplan 28. |
 | ML inference latency | Depends on model and hardware. A budget here would be fiction until subplan 08's model exists. |
 | Multi-user throughput | No service until Phase 3. |
 
@@ -178,7 +205,9 @@ regressions. `perf` is available.
 
 ## Open items
 
-- [ ] Re-run the FM-index benchmark against a real *E. coli* genome, not synthetic DNA
+- [x] ~~Is `bio`'s FM-index adequate~~ No, on memory. `fm-index` is, at ~3.9 bytes/base. See above.
+- [ ] Re-run both benchmarks against a real *E. coli* genome, not synthetic DNA
+- [ ] Measure a 2-bit packed variant to test the literature's sub-3 GB human-genome figure
 - [ ] Measure SBOL round-trip and reverse-complement to move them into Tier 1
 - [ ] Record CI-hardware baselines separately from local ones
 - [ ] Verify the < 5 ms loopback gRPC assumption before Phase 3, since subplan 05's boundary

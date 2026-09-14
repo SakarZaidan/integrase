@@ -8,24 +8,43 @@
 
 ---
 
+> **REVISED 2026-09-14.** The first version of this subplan recommended cutting circuit-logic
+> compilation, generative design, 3D visualization, the desktop app, and genome-scale search from
+> v1.0. **That recommendation is withdrawn.** It rested on two errors: a performance conclusion
+> drawn from one library (corrected in subplan 09), and an assumption that delivering these
+> features meant reimplementing them. Licence research showed otherwise. The revised position is
+> below; the competitive analysis that preceded it was sound and is unchanged.
+
 ## The verdict, stated first
 
-**The project is worth building. The project as scoped in the brief is not.**
+**The project is worth building, and the brief's full feature set is deliverable, because almost
+none of it needs to be built from scratch.**
 
-The brief describes a platform that unifies genetic circuit CAD, biophysical simulation, ML-guided
-part design, visualization, circuit-logic compilation, and a biosafety gateway, across three
-languages, with a desktop app and a web target. That is six substantial subsystems, and the
-historical record of the field is that unification platforms attempting this scope die before
-reaching usefulness. TinkerCell is the cautionary example: it attempted exactly this unification,
-and it is no longer maintained.
+The historical failure mode is real: TinkerCell attempted this unification and did not survive,
+and the reason is that each subsystem was a multi-year build. The escape from that trap is not to
+cut the subsystems. It is to notice that **the field's tooling is dormant, permissively licensed,
+and therefore available.**
 
-Two of the brief's claimed differentiators are real, defensible, and not served by any existing
-tool. Four are weak, and two of those four were quietly commoditized while this brief was being
-written. The recommendation is to keep the identity and cut the scope hard around the two real
-ones.
+| Asset | Licence | What it means for us |
+|---|---|---|
+| Cello (875 stars, dormant since 2022) | **BSD-2-Clause** | Logic synthesis can be ported, not reinvented. 142 forks exist already. |
+| `sbol-rs` (v1.0.0, active) | MIT OR Apache-2.0 | 348 validation rules, verified working. |
+| iBioSim (67 stars, maintained) | **Apache-2.0** | Simulation interop, and its algorithms are readable. |
+| Evo 2 (4,213 stars) | **Apache-2.0** | Generative design integrated, not trained. |
+| SecureDNA | MIT OR Apache-2.0 | Screening delegated to a peer-reviewed implementation. |
+| Commec / Common Mechanism | open source | A second screening backend. |
+| dnaplotlib (304 stars) | **MIT** | SBOL Visual glyph geometry, readable reference. |
+| pySBOL3 | MIT | Cross-implementation oracle. |
+| `fm-index`, `sucds` | permissive | Compressed indexing at ~3.9 bytes/base, measured. |
 
-This is the most important finding in the planning folder, and subplan 21's phasing and
-`FINAL-DECISION.md` both follow from it.
+**Every significant component of the brief's scope has a permissively licensed, working
+implementation that can be ported, wrapped, or depended upon.** The multi-year estimate assumed
+greenfield construction of things that already exist and whose authors have stopped maintaining
+them.
+
+That changes the strategic question from "which features do we cut?" to "what do we add that
+nobody has?" The answer to the second question is in the revised differentiation section below,
+and it is a larger idea than the original plan contained.
 
 ---
 
@@ -213,42 +232,69 @@ consistent API and honest uncertainty attached. Import Cello's output. Round-tri
 designs. Export SBML for iBioSim. Add the two things nobody has (calibrated uncertainty, screening
 gate). Do not rebuild what works.
 
-**Verdict: keep the word, change the meaning. Integrase is connective tissue with two original
-organs, not a replacement skeleton.**
+**Verdict: keep the word and keep the scope. Integrase is connective tissue with original organs,
+and the connective tissue is made of other people's permissively licensed code.**
+
+The distinction that matters is not scope, it is **origin**. TinkerCell died building six
+subsystems. Integrase ports one (Cello, BSD-2), depends on three (`sbol-rs`, SecureDNA,
+`fm-index`), integrates one (Evo 2), and builds two originals: the confidence layer and the
+verifiable design record. That is a fundamentally different amount of work for the same user-facing
+surface.
 
 ---
 
-## Recommended scope change
+## Revised scope: everything stays, delivered by integration
 
-The brief invites restructuring during planning as long as the core identity survives. This is
-that restructuring.
+The brief invites restructuring during planning. This is that restructuring, and it restores rather
+than removes.
 
-### Cut or defer
+### Delivered by porting or wrapping
 
-| Brief item | Recommendation | Reason |
-|---|---|---|
-| Circuit-logic compilation (Cello-equivalent) | **Defer past v1.0.** Import Cello output instead. | Logic synthesis with characterized gate libraries is a multi-year research project and Cello already did it well. Reimplementing it is the fastest way to spend two years and ship nothing. |
-| Generative sequence design | **Defer.** | Evo 2 exists, is open-weight, and is better than anything this project would train. Integrate later; do not compete. |
-| 3D construct visualization | **Defer.** | The brief asks for 3D rendering of constructs. Genetic constructs are linear sequence diagrams. SBOL Visual 2D glyph rendering is what users actually need and what the standard specifies. 3D is a demo feature, not a user need. Subplan 13 should push back on this explicitly. |
-| Desktop app | **Defer to after the web/SDK path.** | SBOLCanvas being web-based and maintained while the Java desktop tools died is evidence about delivery model. |
-| Genome-scale FM-index search | **Defer until a scenario needs it.** | See above. |
+| Brief item | Original recommendation | Revised | How |
+|---|---|---|---|
+| Circuit-logic compilation | Defer past v1.0 | **In scope, Phase 3** | Cello is BSD-2-Clause. Port its gate-assignment and UCF handling to Rust incrementally, with its published results as the correctness oracle. Subplan 25. |
+| Generative sequence design | Defer | **In scope, Phase 4** | Evo 2 is Apache-2.0 with open weights. Integrate as a `Model` behind the same `Prediction<T>` contract, so generated sequences carry uncertainty and provenance like everything else. Subplan 26. |
+| Genome-scale search | Defer until needed | **In scope, Phase 2** | My performance conclusion was wrong. Compressed indexing measures ~3.9 bytes/base. Subplan 28. |
+| 3D visualization | Defer | **In scope, Phase 4, redefined** | Not 3D constructs, which are linear and where 3D is actively worse. 3D where the data is genuinely three-dimensional: RNA secondary structure, protein structure, supercoiling. Subplan 27. |
+| Desktop app | Defer to after web | **In scope, Phase 5** | Tauri v2 wrapping the same frontend. Unchanged reasoning, later position. |
 
-### Keep and centre
+### The addition that changes the project's ceiling
+
+Restoring features does not by itself make this a better idea. What does is noticing what the
+restored scope makes possible that the cut scope did not.
+
+**Verifiable Design Records.** A cryptographically signed, portable record binding a design to
+every prediction made about it, the screening verdict that cleared it, and the provenance chain it
+came from, including whether a generative model produced it.
+
+Nobody has this. It is not in SBOL, which has provenance vocabulary but no cryptographic binding
+and no screening attestation. And three forces converging in 2026 make it urgent rather than
+merely clever:
+
+1. **The October 2026 compliance deadline.** The OSTP framework threshold drops to 50 bp and the
+   sequence-of-concern definition expands, with IGSC conformance due 2026-10-24. Providers need to
+   demonstrate screening. A design-time attestation a provider can verify is directly useful to a
+   market with a date on it.
+2. **AI-generated sequences.** Evo 2 generates DNA. Commec v2.0's July 2026 release specifically
+   added sensitivity to AI-redesigned proteins split into short fragments. The field's emerging
+   question is *where did this sequence come from and was it checked*. A signed provenance chain
+   answers it.
+3. **The calibration gap.** Foundation models produce sequences with no uncertainty attached. A
+   record that carries calibrated predictions and their model identity is the honest interchange
+   format the generative era lacks.
+
+This is developed fully in subplan 29. It is the difference between "a good CAD tool in a small
+field" and "infrastructure a field needs."
+
+### What stays cut
 
 | Item | Why |
 |---|---|
-| Calibrated uncertainty throughout | The real differentiator. Everything else supports it. |
-| Biosafety screening gateway | The second real differentiator, and the ethically load-bearing one. |
-| SBOL interop via `sbol-rs` | Table stakes, cheap now that `sbol-rs` exists, and the thing that makes interop-as-unification possible at all. |
-| Deterministic biophysical models (RBS, promoter) with honest error reporting | The substrate the uncertainty story runs on. Without a prediction there is nothing to attach an interval to. |
-| Python SDK | Where the users actually are. pySBOL3's activity proves it. |
+| Reimplementing SBOL | 348 validation rules exist upstream, verified. Depending is correct. |
+| Our own screening matcher | A false negative is the worst failure available. Delegate. |
+| 3D rendering of linear constructs | The data is 1D. SBOL Visual is 2D because that communicates. 3D goes where 3D data is. |
+| Operating a hosted service ourselves | We publish images. |
 
-### The one-line version of the scope change
-
-Build the tool that answers "here is my construct, what will it do, how much should I trust that,
-and is it safe to order," and interoperate with everything else rather than replacing it.
-
----
 
 ## Honest risks that scoping does not fix
 
