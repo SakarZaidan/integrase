@@ -19,7 +19,7 @@ Last reviewed: 2026-09-14
 
 ### R-002: Access to a curated sequence-of-concern reference dataset
 
-**Status:** OPEN, raised 2026-09-14
+**Status:** **RESOLVED 2026-09-14** by subplan 24. No owner action needed.
 **Blocks:** any honest claim that biosafety screening is real rather than illustrative
 **Does not block:** gateway architecture, its interfaces, its test harness, or subplans 06/10/24
 

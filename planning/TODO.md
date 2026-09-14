@@ -28,8 +28,8 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 06 Per-subsystem architecture
 - [x] 07 Engineering principles and rules
 - [x] 08 AI/ML architecture and plan
-- [ ] 09 Performance engineering
-- [ ] 10 Security and threat modeling
+- [x] 09 Performance engineering
+- [x] 10 Security and threat modeling
 - [ ] 11 Problems, scenarios, use cases, edge cases
 - [x] 12 OOP, code organization, API design philosophy
 - [ ] 13 Frontend and visualization engineering
@@ -43,7 +43,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] 21 Roadmap, phases, milestones
 - [ ] 22 Final rating and verdict
 - [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
-- [ ] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
+- [x] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
 
 ### Repository
 - [x] `gh repo create SakarZaidan/integrase --private`
@@ -81,8 +81,9 @@ Each is assigned to the subplan that has to answer it. Listed here so they canno
 dropped when that subplan gets written.
 
 - [x] ~~`sbol-rs` evaluation~~ Done. Adopt wholesale, see subplan 23.
-- [ ] Can SecureDNA be self-hosted, and what is its query protocol -> **24**
-- [ ] Does the Common Mechanism ship usable reference data or require the operator to supply it -> **24**
+- [x] ~~SecureDNA self-hosting~~ Yes. Local `synthclient`, DOPRF protocol, test HDB in-repo.
+- [ ] Evaluate `common-mechanism` as a second backend, and whether dual-backend comparison earns
+      its complexity -> **24**
 - [x] ~~SynBioHub CI suitability~~ Moot: API requires auth. Vendor the `sbol-rs` corpus instead.
 - [x] ~~Which RDF crate `sbol-rs` uses~~ Oxigraph family. Do not add `sophia`.
 - [ ] Is `bio`'s FM-index fast enough at genome scale for our targets (benchmark, not opinion) -> **09**
@@ -93,16 +94,20 @@ dropped when that subplan gets written.
 - [ ] RNA secondary structure dependency: ViennaRNA licensing or an alternative. **Blocks the RBS
       baseline.** -> **16**
 - [ ] Benchmark smaller genomic LMs against Evo 2 variants at 12 GB VRAM -> **08**
+- [ ] Re-run the FM-index benchmark on a real genome rather than synthetic DNA -> **09**
+- [ ] Confirm SecureDNA certificate terms for a design environment, not a synthesis provider -> **24**
+- [ ] Verify the <5ms loopback gRPC assumption before Phase 3 -> **09**, affects **05**
 - [ ] **Find a second independent expression dataset.** On the critical path: without it the
       calibration claim is in-distribution only. -> **08**
 - [ ] Decide whether the Python SDK depends on `sbol-py`, pySBOL3, or bundles its own build -> **15**
 - [ ] Open the `sbol-py` PyPI conversation with SynBioDex -> blocks Python packaging in **15**
 - [ ] Extend dependency vetting to cover data licensing, not just code -> **07**
-- [ ] Benchmark `bio`'s FM-index at realistic sizes before committing -> **09**
-- [ ] Does the screening audit log need durable storage before Phase 3 -> **24**
+- [x] ~~Benchmark `bio`'s FM-index~~ Done. 39.4 bytes/base, ~136 Mbp ceiling on this machine.
+      Mammalian genomes are out of scope. See subplan 09.
+- [x] ~~Audit log storage timing~~ No. Hash-chained append-only file suffices until Phase 3.
 - [ ] Firefox / WebGL2 fallback strategy -> **13**
 - [ ] Exact visual encoding per `DomainVerdict` variant -> **13**, **14**
-- [ ] `Screenable` trait surface: what a backend gets to see -> **24**
+- [x] ~~`Screenable` surface~~ Sequence, length, design ID. Nothing else. See subplan 24.
 
 ---
 
@@ -131,6 +136,6 @@ Tracked in full in `REQUESTS.md`. Summary:
 
 - **GitHub organization creation.** Needs the owner. GitHub exposes no public API for it. Not
   blocking anything right now because the personal repo is the agreed interim.
-- **Curated sequence-of-concern reference data for biosafety screening.** The project's largest
-  external dependency. Blocks any claim that screening is real rather than illustrative. Does not
-  block architecture or the gateway's interface design.
+- ~~**Curated sequence-of-concern reference data.**~~ **RESOLVED** by subplan 24. SecureDNA is free,
+  runs locally, uses an oblivious protocol so no one holds the database, and ships a test HDB so CI
+  needs no credentials.
