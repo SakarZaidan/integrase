@@ -48,6 +48,30 @@ it constitutes real screening.
 
 ---
 
+### R-003: SynBioHub account
+
+**Status:** OPEN, raised 2026-09-14
+**Blocks:** nothing. Optional live integration checks only.
+
+**What is needed.** A registered account on synbiohub.org, or a decision that we do not want one.
+
+**Why.** Verified on 2026-09-14 that the public SynBioHub API requires authentication for every
+endpoint probed, including `/rootCollections`, which the documentation describes as public. All six
+returned `401 Login required`.
+
+This does **not** block CI or testing. Subplan 04 resolves that by vendoring the `sbol-rs` fixture
+corpus (343 files, MIT OR Apache-2.0) as the test set, which is a better answer than putting
+credentials in CI regardless. An account is useful for development and for optional manual
+integration checks against real registry content.
+
+Registering an account on an external service under the owner's name is their decision, not an
+engineering call, which is why this is here rather than done.
+
+**What happens once resolved.** Live SynBioHub import becomes testable manually. Credentials go in
+a local `.env`, never in CI, per subplan 10.
+
+---
+
 ### R-001: GitHub organization creation
 
 **Status:** OPEN, raised 2026-09-14, interim workaround agreed
