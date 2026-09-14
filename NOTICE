@@ -1,0 +1,32 @@
+Integrase
+Copyright 2026 The Integrase Authors
+
+This product includes software developed as part of the Integrase project
+(https://github.com/integrase/integrase).
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file for the
+full license text.
+
+--------------------------------------------------------------------------------
+Scope statement
+--------------------------------------------------------------------------------
+
+Integrase is a design, analysis, and simulation platform that operates on
+sequence data. It does not perform genome editing, does not interact with living
+organisms, and does not order or produce physical DNA. Physical synthesis and
+wet-lab actuation are out of scope and are not capabilities of this software.
+
+Predictions produced by this software are model outputs, not measurements. They
+carry calibrated uncertainty, and that uncertainty is part of the result rather
+than a caveat attached to it. No output of this system should be treated as a
+substitute for experimental validation.
+
+--------------------------------------------------------------------------------
+Third-party attributions
+--------------------------------------------------------------------------------
+
+This section lists attribution notices required by the licenses of bundled or
+redistributed third-party components. It is maintained as dependencies are
+added, per the dependency vetting rules in planning/subplans/07.
+
+No third-party components are bundled yet.
