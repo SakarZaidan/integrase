@@ -26,12 +26,12 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 04 Resources and data
 - [x] 05 Technology stack, end to end
 - [x] 06 Per-subsystem architecture
-- [ ] 07 Engineering principles and rules
+- [x] 07 Engineering principles and rules
 - [ ] 08 AI/ML architecture and plan
 - [ ] 09 Performance engineering
 - [ ] 10 Security and threat modeling
 - [ ] 11 Problems, scenarios, use cases, edge cases
-- [ ] 12 OOP, code organization, API design philosophy
+- [x] 12 OOP, code organization, API design philosophy
 - [ ] 13 Frontend and visualization engineering
 - [ ] 14 Brand and visual design system
 - [ ] 15 Backend and API design
