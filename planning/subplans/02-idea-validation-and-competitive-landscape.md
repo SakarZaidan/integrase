@@ -1,6 +1,6 @@
 # 02. Idea validation and competitive landscape
 
-**Status:** decided, with a scope change recommended
+**Status:** **revised 2026-09-15.** The original scope cut is withdrawn; see the revision banner and the corrected differentiation grades below.
 **Date:** 2026-09-14
 **Decides:** whether the project as briefed is worth building, and if not, what to build instead
 **Depends on:** `00-research-log.md` sections 1, 2, 3
@@ -209,15 +209,44 @@ audience.
 **Verdict: correct engineering choice, not a user-facing differentiator. Keep it out of the
 README's pitch.**
 
-### WEAK: Genome-scale sequence search performance
+### REAL, on revision: genome-scale sequence search
 
-The brief specifies FM-index-backed motif and restriction-site search at genome scale. `bio`
-already ships an FM-index. More importantly, it is unclear this is a felt pain point: the designs
-these users work with are plasmids and constructs measured in kilobases, not genomes. Fast search
-over a 3 Gb genome is a capability in search of a user.
+> Originally graded WEAK, on two grounds that both turned out to be wrong. Corrected 2026-09-15.
 
-**Verdict: build it when a scenario demands it, not before. Subplan 11 should be honest about
-whether any real scenario needs it.**
+**Wrong claim 1: "`bio` already ships an FM-index, so this is solved."** It ships one that costs
+**39.4 bytes per base** (measured, subplan 09), because it retains a full `u64` suffix array. That
+puts a human genome at 113.8 GB. A compressed index measures **~3.9 bytes per base** on the same
+data and hardware, putting the same genome near 12 GB, and tuned 2-bit packing should improve on
+that again. No existing Rust bioinformatics crate offers the compressed form with the ergonomics we
+need, so this is a real capability gap rather than a solved problem. Subplan 28 owns it.
+
+**Wrong claim 2: "users work on plasmids, so nobody needs genome scale."** True of the design
+artifact, false of the queries. Once the circuit compiler exists (subplan 25), genome-scale queries
+fall directly out of ordinary workflows: finding off-target integration sites across a host genome,
+checking a designed part against every sequenced isolate of a species, and screening a construct
+against a pangenome. The user appears as soon as the rest of the system does.
+
+**Verdict: real. Subplan 28 owns the index, and subplan 21 places it.**
+
+### REAL, and arguably the centrepiece: uncertainty through circuit composition
+
+Not in the brief's original list of differentiators, and on revision it is the strongest one the
+project has.
+
+Cello compiles logic to genetic circuits and returns a deterministic score. It does not model
+context effects, and characterisation of real Cello circuits documents cryptic promoters,
+transcription attenuation, alternative start sites, off-target interactions, and gates that fail
+outright. Prior work on uncertainty-aware circuit scoring and interval propagation through gate
+libraries exists (ACS Synthetic Biology, 2021), **and it lives in papers rather than in a maintained
+tool.**
+
+What nobody offers is calibrated uncertainty propagated through composition, with failure
+attribution telling a designer *which gate* to characterise better. That combination is this
+project's clearest reason to exist, and it requires exactly the compiler the original version of
+this subplan cut. See subplan 25.
+
+**This is the single strongest argument that cutting scope was the wrong call:** the cut removed the
+component that the best differentiator depends on.
 
 ### CONTESTED: Unification itself
 
