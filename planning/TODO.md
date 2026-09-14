@@ -44,6 +44,14 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 22 Final rating and verdict
 - [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
 - [x] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
+- [x] 25 Circuit logic compilation *(added, scope restoration)*
+- [x] 26 Generative design *(added, scope restoration)*
+- [x] 27 Structural visualization *(added, scope restoration)*
+- [x] 28 Genome-scale indexing *(added, scope restoration)*
+- [x] 29 Verifiable design records *(added, scope restoration)*
+- [x] 30 Adoption and distribution *(added 2026-09-15: the gap that kept adoption at 3)*
+- [x] 31 Ethics, dual-use oversight, institutional integration *(added, scope restoration)*
+- [x] 32 Funding and institutional sustainability *(added 2026-09-15)*
 - [x] 25 Circuit logic compilation *(scope restored, 2026-09-14)*
 - [x] 26 Generative design and foundation model integration *(scope restored)*
 - [x] 27 Structural and 3D visualization *(scope restored, redefined)*
@@ -200,6 +208,12 @@ Counts by subplan:
 - `21-roadmap-and-milestones.md`: 3 open
 - `23-upstream-ecosystem-strategy.md`: 4 open
 - `24-screening-data-and-operations.md`: 4 open
+
+### Blocking, raised 2026-09-15
+
+- [ ] **R-004: decide the institutional route.** An individual cannot apply to NSF PESOSE. This
+      gates the entire funding path. Owner decision.
+- [ ] Identify a second independent calibration dataset. Caps data availability at 7.
 
 ### Blocking before Phase 1a starts
 

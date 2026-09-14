@@ -6,6 +6,12 @@
 **Depends on:** `00-research-log.md`, subplan 02
 **Feeds:** subplans 21, 22, and `FINAL-DECISION.md`
 
+> **Scores here are SUPERSEDED, and kept as a historical record.** This document scored the project
+> *before* planning, which is its purpose. Two of its conclusions were later shown to rest on bad
+> evidence: technical feasibility at full scope (the build-versus-adopt analysis was not done) and
+> the adoption path (no adoption strategy existed to score). Current scores are in
+> `22-final-rating-and-verdict.md`, revised 2026-09-15: plan quality ≈9.3, prospects 7.7.
+
 The brief asks that this be the most self-critical document in the folder. Taking that seriously
 means the scores below are not calibrated to be encouraging. Two of the six are bad, and the bad
 ones are the ones that decide whether the project matters.
