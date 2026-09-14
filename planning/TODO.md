@@ -32,9 +32,9 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 10 Security and threat modeling
 - [x] 11 Problems, scenarios, use cases, edge cases
 - [x] 12 OOP, code organization, API design philosophy
-- [ ] 13 Frontend and visualization engineering
-- [ ] 14 Brand and visual design system
-- [ ] 15 Backend and API design
+- [x] 13 Frontend and visualization engineering
+- [x] 14 Brand and visual design system
+- [x] 15 Backend and API design
 - [x] 16 Simulation and biophysical modeling accuracy
 - [x] 17 Testing strategy
 - [ ] 18 CI/CD and release engineering
@@ -96,6 +96,10 @@ dropped when that subplan gets written.
 - [ ] Benchmark smaller genomic LMs against Evo 2 variants at 12 GB VRAM -> **08**
 - [ ] Re-run the FM-index benchmark on a real genome rather than synthetic DNA -> **09**
 - [ ] Confirm SecureDNA certificate terms for a design environment, not a synthesis provider -> **24**
+- [ ] Measure the WASM bundle early; if it cannot stay near 5 MB the Leptos choice needs revisiting -> **13**
+- [ ] Verify hatch/stipple textures stay legible at 12px in both render backends -> **13**, **14**
+- [ ] Confirm font licensing (Inter, JetBrains Mono, Source Serif 4) before bundling -> **14**
+- [ ] Design the `cleared_token` format: signed, expiring, bound to a design hash -> **15**
 - [ ] Verify the <5ms loopback gRPC assumption before Phase 3 -> **09**, affects **05**
 - [ ] **Find a second independent expression dataset.** On the critical path: without it the
       calibration claim is in-distribution only. -> **08**
@@ -105,8 +109,8 @@ dropped when that subplan gets written.
 - [x] ~~Benchmark `bio`'s FM-index~~ Done. 39.4 bytes/base, ~136 Mbp ceiling on this machine.
       Mammalian genomes are out of scope. See subplan 09.
 - [x] ~~Audit log storage timing~~ No. Hash-chained append-only file suffices until Phase 3.
-- [ ] Firefox / WebGL2 fallback strategy -> **13**
-- [ ] Exact visual encoding per `DomainVerdict` variant -> **13**, **14**
+- [x] ~~Firefox fallback~~ SVG/DOM tier 2. No WebGL2 tier: three render paths means one done well.
+- [x] ~~Visual encoding per DomainVerdict~~ Texture carries confidence, hue carries category.
 - [x] ~~`Screenable` surface~~ Sequence, length, design ID. Nothing else. See subplan 24.
 
 ---
