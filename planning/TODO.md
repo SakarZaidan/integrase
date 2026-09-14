@@ -20,9 +20,9 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] `planning/decisions/0000-adr-template.md` and `decisions/README.md`
 
 ### Subplans
-- [ ] 01 Project identity and naming  **(gates repo creation)**
-- [ ] 02 Idea validation and competitive landscape
-- [ ] 03 Novelty, uniqueness, and feasibility rating
+- [x] 01 Project identity and naming  -> **Integrase**
+- [x] 02 Idea validation and competitive landscape
+- [x] 03 Novelty, uniqueness, and feasibility rating
 - [ ] 04 Resources and data
 - [ ] 05 Technology stack, end to end
 - [ ] 06 Per-subsystem architecture
@@ -45,12 +45,20 @@ Target: complete planning folder, then owner review before any implementation co
 - [ ] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
 - [ ] 24 Biosecurity screening data sourcing and operational policy *(added, see PROGRESS.md)*
 
-### Repository (after subplan 01 names the project)
-- [ ] `gh repo create SakarZaidan/<name> --private`
-- [ ] Apache-2.0 `LICENSE` and `NOTICE`
-- [ ] Polyglot `.gitignore` (Rust, Go, Python, Node, WSL/editor cruft, `prompt.txt`)
-- [ ] Minimal branch protection: PRs required, no direct pushes to default branch
-- [ ] Verify settings by reading them back through `gh api`, not by assuming the write worked
+### Repository
+- [x] `gh repo create SakarZaidan/integrase --private`
+- [x] Apache-2.0 `LICENSE` and `NOTICE`
+- [x] Polyglot `.gitignore` (Rust, Go, Python, Node, WSL/editor cruft, `prompt.txt`, screening data)
+- [x] Branch protection: PRs required, admins bound, linear history, no force push
+- [x] Squash-only merge, merge commits and rebase disabled, delete branch on merge
+- [x] Dependabot vulnerability alerts and automated security fixes
+- [x] Settings verified by reading back through `gh api`
+- [ ] **Secret scanning and push protection**: unavailable on a private repo at this plan tier
+      (HTTP 422). Enable when the repository goes public.
+- [ ] **Required approvals is 0, not 1.** GitHub forbids a PR author approving their own PR, so
+      requiring 1 with a single contributor makes every PR unmergeable. PRs are mechanically
+      required; the review itself is enforced by process via the `pr-review` skill. Raise to 1 the
+      moment a second contributor exists. See subplan 19.
 
 ### Synthesis
 - [ ] `FINAL-DECISION.md`
