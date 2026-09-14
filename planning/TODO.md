@@ -37,9 +37,9 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 15 Backend and API design
 - [x] 16 Simulation and biophysical modeling accuracy
 - [x] 17 Testing strategy
-- [ ] 18 CI/CD and release engineering
-- [ ] 19 Contribution and governance model
-- [ ] 20 Documentation plan
+- [x] 18 CI/CD and release engineering
+- [x] 19 Contribution and governance model
+- [x] 20 Documentation plan
 - [ ] 21 Roadmap, phases, milestones
 - [ ] 22 Final rating and verdict
 - [x] 23 Upstream ecosystem strategy *(added, see PROGRESS.md)*
