@@ -30,13 +30,13 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 08 AI/ML architecture and plan
 - [x] 09 Performance engineering
 - [x] 10 Security and threat modeling
-- [ ] 11 Problems, scenarios, use cases, edge cases
+- [x] 11 Problems, scenarios, use cases, edge cases
 - [x] 12 OOP, code organization, API design philosophy
 - [ ] 13 Frontend and visualization engineering
 - [ ] 14 Brand and visual design system
 - [ ] 15 Backend and API design
 - [x] 16 Simulation and biophysical modeling accuracy
-- [ ] 17 Testing strategy
+- [x] 17 Testing strategy
 - [ ] 18 CI/CD and release engineering
 - [ ] 19 Contribution and governance model
 - [ ] 20 Documentation plan
@@ -89,7 +89,7 @@ dropped when that subplan gets written.
 - [ ] Is `bio`'s FM-index fast enough at genome scale for our targets (benchmark, not opinion) -> **09**
 - [x] ~~iGEM Registry licensing~~ CC BY-SA. ShareAlike applies to redistributed data.
 - [x] ~~SBML / SED-ML / BioModels~~ BioModels is CC0. Export target for iBioSim interop.
-- [ ] Cello 2.0 UCF format specifics, needed for the import path -> **11**
+- [ ] Cello UCF import: no v1.0 scenario motivates it. Revisit when one exists. -> **21**
 - [ ] Verify exact license terms on Evo 2 weights before depending on them -> **08**
 - [ ] RNA secondary structure dependency: ViennaRNA licensing or an alternative. **Blocks the RBS
       baseline.** -> **16**
