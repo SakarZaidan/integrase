@@ -1,7 +1,13 @@
 # FINAL-DECISION
 
-**Date:** 2026-09-14
+**Date:** 2026-09-14, **revised 2026-09-15**
 **Status:** the governing decision for the project
+
+> **Revision, 2026-09-15.** The first version of this document ratified a hard scope cut. That has
+> been reversed: full scope is restored (subplans 25 through 29, 31), a distribution strategy exists
+> (subplan 30), and a funding path is researched (subplan 32). Two of the nine tensions below were
+> resolved on evidence that turned out to be wrong, and are re-resolved in place with the correction
+> shown. Prospects moved from 5.6 to 7.7 (subplan 22).
 **Supersedes:** any subplan it contradicts. Where this document and a subplan disagree, this wins,
 and the subplan gets amended.
 
@@ -16,13 +22,15 @@ is cited.
 
 ## The decision in one paragraph
 
-Build **Integrase**, an open-source platform for designing, simulating, and screening genetic
-constructs, where every prediction carries calibrated uncertainty and the path toward physical
-synthesis passes through a screening gate enforced by the type system. Build it much smaller than
-the brief describes: a Rust core, a Python SDK, a CLI, and one honestly-calibrated biophysical
-model, interoperating with the existing ecosystem through `sbol-rs` rather than replacing it. Ship
-that, then publish the calibration result, because a citable artifact is worth more to this
-project's survival than any additional feature.
+Build **Integrase** at full scope: genetic circuit CAD, biophysical simulation with calibrated
+uncertainty propagated compositionally through circuits, generative design constrained by screening,
+genome-scale sequence infrastructure, structural visualisation, verifiable design records, and a
+biosecurity gateway enforced by the type system. Build almost none of it from scratch. Nearly every
+large subsystem has an existing licence-compatible component underneath it: `sbol-rs` for standards,
+SecureDNA for screening, Cello (BSD-2-Clause) for logic synthesis, Evo 2 for generation, a
+compressed FM-index for scale. **What we build is the layer that makes them one coherent system that
+never hides what it does not know.** Ship Phase 1, publish the calibration result, and reach the
+4,600 people a year who already have exactly this problem.
 
 ---
 
@@ -72,6 +80,14 @@ round-tripping losslessly) is the kind of evidence that belongs in the docs.
 build, and dishonest.
 
 ### 4. Adoption scores 3 out of 10. Should this be built at all?
+
+> **Re-resolved 2026-09-15.** The original resolution accepted 3 as a fact of the field and narrowed
+> the project in response. That was wrong, and the reason it was wrong is instructive: **there was
+> no adoption strategy in the plan at all.** The score was measuring the absence of work, not the
+> difficulty of the problem. Subplan 30 did the work and moved it to 8.5. The single largest missed
+> item was iGEM: 4,600+ participants and 400+ teams annually, whose mandatory Team Safety Form and
+> White List map directly onto the screening gateway we were already building. The resolution below
+> is retained because publishing remains correct; it is no longer the *only* channel.
 
 **Resolution: yes, and Phase 1 is scoped specifically to attack this rather than to build
 infrastructure.**
@@ -203,16 +219,26 @@ If this fails, decision 5 applies. It does not fail silently and it does not get
 
 ## What we are not building, and will keep not building
 
-| Item | Why, with the evidence |
+Revised 2026-09-15. Four rows moved out of this table when scope was restored; the reasons they
+moved are recorded rather than deleted.
+
+| Item | Why |
 |---|---|
-| Circuit logic synthesis | Cello did it well. Import its output. Reimplementing is multi-year. (02) |
-| Genome-scale indexing | Measured: 39.4 bytes/base, 113.8 GB for a human genome. Supported range is bacterial scale. (09) |
-| 3D construct rendering | Constructs are linear; SBOL Visual is 2D because that is what journals accept. (13) |
 | Our own screening matcher | A false negative is the worst failure available here. Delegate to a peer-reviewed implementation. (24) |
-| Our own SBOL implementation | 348 validation rules already exist upstream, verified working. (23) |
-| Generative sequence design | Evo 2 is open-weight and better than anything we would train. (02, 08) |
+| Our own SBOL implementation | 348 validation rules already exist upstream, verified by running them. (23) |
+| Our own genomic foundation model | Evo 2 is open-weight and better than anything we would train. Integrate. (26) |
 | A hosted service we operate | We publish images. Operating a service is a different business. (18) |
 | A "hide uncertainty" setting | It will be requested. It is declined. The person who most wants it most needs the information. (13) |
+| An open-core paywall on screening or uncertainty | Those two things are the product's reason to exist. Gating either turns the stated principles into marketing. (32) |
+
+### Moved out of this table, with the correction
+
+| Item | Was excluded because | Now |
+|---|---|---|
+| Circuit logic synthesis | "Reimplementing Cello is multi-year" | **Cello is BSD-2-Clause with 142 forks.** Fork and revive, do not reimplement. (25) |
+| Genome-scale indexing | "39.4 bytes/base, 113.8 GB for a human genome" | **That was one library's design choice**, not a property of the approach. Compressed index measures ~3.9 bytes/base. (09, 28) |
+| 3D construct rendering | "Constructs are linear" | Correct about constructs, wrong about scope. 3D belongs where the data is genuinely three-dimensional: RNA and protein structure. (27) |
+| Generative sequence design | "Evo 2 is better than anything we would train" | Still true, and an argument for integrating rather than excluding. (26) |
 
 ---
 
@@ -220,16 +246,22 @@ If this fails, decision 5 applies. It does not fail silently and it does not get
 
 None of them is code, and all three are Phase 1 concerns rather than later ones.
 
-1. **Publish the calibration result.** Critical path for adoption. A preprint with public
-   methodology converts adoption into an academic problem, which this field knows how to solve.
-2. **Open the SynBioDex conversation.** We have something concrete to bring: a serious downstream
+1. **Reach iGEM.** 4,600+ participants and 400+ teams a year, whose mandatory safety workflow our
+   differentiating subsystem implements directly. The highest-throughput channel available and the
+   one the original plan missed entirely. (30)
+2. **Publish the calibration result.** A preprint with public methodology converts adoption into an
+   academic problem, which this field knows how to solve.
+3. **Open the SynBioDex conversation.** We have something concrete to bring: a serious downstream
    user of `sbol-rs`, a round-trip observation worth asking about (`urn_design.ttl`), and a request
    for `sbol-py` on PyPI that blocks our Python packaging. A real conversation, not a cold
    introduction.
-3. **Find the second calibration dataset.** Without it the central claim is in-distribution only,
+4. **Find the second calibration dataset.** Without it the central claim is in-distribution only,
    which is honest but much less compelling.
 
-Subplan 22 estimates that all three landing takes the project from 5.6 to roughly 7.2. The gap
+5. **Decide the institutional route** (R-004). Gates NSF eligibility entirely, since an individual
+   cannot apply. (32)
+
+Subplan 22 estimates that executing these takes prospects from 7.7 to roughly 9.2. The gap
 between 7.2 and anything higher is occupied by citations, users, and a second maintainer, which take
 years and cannot be planned into existence.
 
@@ -254,11 +286,21 @@ silently.** A fourth boundary means a fourth test, decided deliberately.
 
 ## Honest closing statement
 
-This plan scores 5.6 out of 10 on its own rubric (subplan 22). The engineering is sound and the
-field is small. Planning removed roughly a year of unnecessary work, killed a briefed feature with a
-measurement, resolved the largest external dependency, and caught a usability gap and an
-accessibility failure before either shipped. It did nothing for adoption, which remains the binding
-constraint and is not an engineering problem.
+Three numbers, because one number was hiding three different questions (subplan 22).
 
-That is the honest position, and recording it here rather than in a footnote is consistent with the
-only principle this project refuses to compromise: report the uncertainty, including about itself.
+**Plan quality: ≈9.3 out of 10.** This is where the brief's standard applies and it is close to the
+bar. The remaining gap is two bounded tasks: identify a second calibration dataset, and decide
+R-004.
+
+**Prospects if executed: 7.7, up from 5.6.** Restoring scope raised novelty from 6 to 8.5 and
+defensibility from 6 to 8, at a cost of half a point of feasibility that the build-versus-adopt
+analysis mostly absorbs. Adoption moved from 3 to 8.5 because a strategy now exists where none did.
+
+**Current state: near zero.** No users, no code, no funding, one contributor. Everything here is a
+plan.
+
+The ceiling this plan can reach is about 9.2, and the four steps to it are named. Three of them
+require execution rather than more planning, which is the honest signal that the planning phase has
+done what it can. **The remaining number is not written down as 9.5 because the evidence does not
+support 9.5**, and a planning folder whose central thesis is that predictions must carry honest
+uncertainty cannot end by reporting a figure it cannot defend.

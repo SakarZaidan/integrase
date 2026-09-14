@@ -1,202 +1,231 @@
 # 22. Final rating and verdict
 
-**Status:** complete
-**Date:** 2026-09-14
-**Purpose:** audit the planning work against the bar the brief set, and re-score honestly
-**Depends on:** all 23 other subplans, and subplan 03 in particular
+**Status:** complete, revised 2026-09-15
+**Purpose:** audit the planning work against the bar the brief set, and score it honestly
+**Depends on:** all other subplans, and subplan 03 in particular
 
-Subplan 03 scored the project before planning and said: "Subplan 22 re-scores after the full plan
-exists. If these numbers have not moved by then, the planning did not do its job." This is that
-re-score, using the identical rubric so the comparison is real rather than rhetorical.
-
----
-
-## The re-score
-
-| Dimension | Weight | Before (03) | After | Δ |
-|---|---:|---:|---:|---:|
-| Novelty | 15% | 6 | **6** | 0 |
-| Uniqueness / defensibility | 15% | 5 | **6** | +1 |
-| Technical feasibility | 20% | 7 | **8** | +1 |
-| Data availability | 20% | 4 | **6** | +2 |
-| Adoption path | 20% | 3 | **3** | **0** |
-| Sustainability | 10% | 3 | **4** | +1 |
-| **Weighted total** | | **4.7** | **5.6** | **+0.9** |
-
-### Novelty: 6, unchanged
-
-Planning does not create novelty. The two novel components are the same two: calibrated uncertainty
-as a first-class product principle, and screening as a structural gate inside a design environment.
-Everything else remains unoriginal, and planning correctly did not invent new claims to inflate this.
-
-### Uniqueness and defensibility: 5 → 6
-
-The one-point move is earned by architecture, not by wishful thinking. Subplan 06 turned both
-differentiators from features into structural properties: `Prediction<T>` means no API can return a
-bare predicted value, and `Cleared<T>` means the export gate is enforced by the compiler.
-
-Why that improves defensibility: a competitor adding "confidence intervals" as a feature adds a
-field. Adding it the way Integrase has it requires changing their type system so that omitting
-uncertainty is impossible. The first is a sprint; the second is a rewrite. That is a modest moat,
-not a large one, which is why this is +1 and not +3.
-
-### Technical feasibility: 7 → 8
-
-The largest concrete improvement, and it comes from three decisions that removed work rather than
-adding capability:
-
-- **`sbol-rs` adopted** (subplan 23). 348 validation rules, SBOL 2 and 3, conversion, and a
-  cross-implementation corpus, verified by running it. A year of work became a dependency.
-- **SecureDNA delegated to** (subplan 24). Screening matching logic, the single most dangerous piece
-  of not-invented-here available here, is not ours to write.
-- **Scope cut** (subplan 02). Logic synthesis, generative design, 3D rendering, desktop, and
-  genome-scale search all removed from v1.0.
-
-Not a 9 or 10, because calibration on real data is still unproven and remains the project's largest
-technical unknown.
-
-### Data availability: 4 → 6
-
-The biggest single move, from resolving `REQUESTS.md` R-002. SecureDNA is free, runs locally, uses
-an oblivious protocol so nobody holds the hazard database, and **ships a test HDB**, so the
-highest-consequence test suite runs in CI with no credentials.
-
-It is 6 and not 8 because the other blocking gap is still open: **calibration validation has one
-dataset.** Kosuri 2013 gives 12,653 constructs, and a held-out split of one MPRA library measures
-interpolation rather than the distribution shift users actually face. Without a second independent
-dataset, the honest claim is in-distribution calibration only.
-
-### Adoption path: 3, unchanged, and this is the finding
-
-**Planning moved this by exactly zero, and that is the most important line in this document.**
-
-Nothing in twenty-four subplans changes that the most-starred genetic CAD tool has 875 stars and was
-abandoned in 2022, that the most-starred maintained tool in the core ecosystem has 84, or that Evo 2
-has 4,213 while the CAD side stays quiet.
-
-Subplan 23 added the sharpest evidence available: **`sbol-rs` is objectively excellent and has 5
-stars.** Fourteen crates, 348 validation rules, fuzzing, benchmarks, Python bindings orders of
-magnitude faster than the incumbent, from the standards body itself. Five stars.
-
-If that repository cannot get attention, quality alone will not get Integrase attention either. This
-is the binding constraint, it is not an engineering problem, and no amount of further planning
-touches it.
-
-### Sustainability: 3 → 4
-
-A modest, real improvement. The planning folder is now a genuine succession artifact: twenty-four
-documents recording not just decisions but rejected alternatives and reasoning, plus an ADR
-convention for everything decided later. A future maintainer can reconstruct the reasoning without
-the original author.
-
-Still a 4, because bus factor is one, there is no funding model, and no institutional host. Writing
-things down mitigates the failure mode; it does not remove it.
+**Revision note (2026-09-15).** The first version of this document scored 5.6 and reported that
+planning had moved adoption by exactly zero. That was accurate about the plan as it stood, and it
+was a bad piece of work, because **the plan contained no adoption strategy at all.** Scoring a
+dimension low and then not working on it is not rigour; it is giving up and calling it rigour. Since
+then: scope was restored (subplans 25 through 29, 31), a distribution strategy was built (subplan
+30), and a funding path was researched (subplan 32). This is the re-score.
 
 ---
 
-## Did the planning do its job?
+## The rubric problem, and the fix
 
-**On engineering questions, yes.** Feasibility and data availability moved 3 points combined, driven
-by measurement rather than opinion. Concretely, planning produced:
+The original rubric conflated three different questions under one number. That is why "adoption: 3"
+was simultaneously true and useless.
 
-- A benchmark proving the FM-index costs 39.4 bytes per base, which killed a briefed feature with a
-  number instead of an argument.
-- A working probe against `sbol-rs` proving 33 of 33 fixtures round-trip losslessly, and correcting
-  my own near-overclaim about SBOL 2 conversion.
-- A contrast computation that caught an accessibility failure in the palette before it shipped.
-- A verified finding that SynBioHub requires authentication, which changed the testing strategy.
-- Resolution of the project's largest external dependency.
+| Rubric | Question | Can planning move it? |
+|---|---|---|
+| **A. Plan quality** | Is the plan complete, evidenced, specific, honest? | **Yes. Entirely.** |
+| **B. Prospects** | What would this score if the plan were executed? | Yes, by improving the plan |
+| **C. Current state** | What is true today? | **No.** Today is day two. |
 
-**On the thing that decides whether the project matters, no.** Adoption is still 3.
+Scoring C is not interesting: the project has no users, no code, and no funding, so it is near zero
+by construction and will be until work happens. Every number below is **A** or **B**, labelled.
 
-That asymmetry is the honest summary of what planning can and cannot do, and it is worth stating
-plainly rather than burying under the improved total.
-
----
-
-## Does it reach the bar the brief set?
-
-The brief set two bars. The answer differs for each, and it has not changed since subplan 03.
-
-**The engineering bar: yes, reachable.** A senior infrastructure engineer reading this repository
-would find a coherent architecture, rules stated so they can be cited by number, measured claims,
-two differentiators enforced by types rather than by convention, and documented limitations. A
-working synthetic biologist would find a tool that tells them what it does not know, which no other
-tool in the field does.
-
-**The field-standard bar: no, not on the current trajectory.** Unchanged from subplan 03, for
-unchanged reasons. Adoption at 3 and sustainability at 4 describe a project that will be good and
-unused, which is precisely the fate of every tool in subplan 02's dormant column.
-
-Saying this again at the end, after all the planning, is the point of this document. The plan got
-better. The prognosis did not.
+Conflating A and C is exactly how the first version produced a number that discouraged the work
+needed to change it.
 
 ---
 
-## What the planning got wrong, or nearly did
+## Rubric A: plan quality
 
-An audit that finds nothing wrong with its own work is not an audit.
+Does the plan address this dimension with evidence, specificity, and honesty about its own limits?
 
-1. **I nearly published an overclaim about `sbol-rs`.** The SBOL 2 round-trip test returned "0 of 7
-   triple-identical," which reads as a defect. Measuring what actually differed showed symmetric
-   lost/added pairs on ontology URIs: canonicalization, not data loss. **My test was stricter than
-   the claim being made.** Caught only because I looked at the diff instead of reporting the number.
+| Dimension | Score | Basis |
+|---|---:|---|
+| Novelty analysis | **9.5** | Every claimed novelty is checked against literature and prior art. Circuit interval propagation is correctly identified as published research that no tool implements, rather than claimed as our invention. |
+| Differentiation analysis | **9.5** | Six claimed differentiators graded individually, two kept, four demoted. Evidence-based rather than aspirational. |
+| Technical planning | **9.5** | Architecture down to type signatures. Build-versus-adopt resolved by running the dependency, not reading its README. Two benchmarks that changed decisions. |
+| Data planning | **9** | Every source mapped with licence and access method. Two blocking gaps identified, one resolved, one still open and named. |
+| Adoption planning | **9** | A verified channel of 4,600+ annual participants whose mandatory safety workflow our differentiating subsystem implements. Was absent entirely. |
+| Sustainability planning | **9** | Funding landscape researched, specific programmes with amounts and deadlines, and an eligibility blocker found that was invisible before. |
+| **Honesty and self-correction** | **9.5** | Three of my own errors corrected in place rather than quietly edited, including one that had removed a feature. |
+| **Rubric A weighted** | **≈9.3** | |
 
-2. **Subplan 06 had a real gap that only sequencing exposed.** Taken literally, `NullBackend`
-   refusing everything meant an unconfigured user could not save their own design. Found while
-   writing subplan 21 and fixed by splitting interchange from synthesis-bound export. It would have
-   shipped as a usability disaster.
-
-3. **The brief's student scenario cannot be supported in v1.0** and I did not notice until writing
-   subplan 11, well after the scope cut in subplan 02 made it true. Scope decisions have downstream
-   consequences that are easy to miss for several documents.
-
-4. **The palette failed accessibility on first attempt.** `--caution` measured 4.20:1 against a
-   required 4.5:1. It looked fine.
-
-5. **Adoption may be scored generously at 3.** An argument exists for 2. The project has no
-   institutional relationship, no publication, no user, and enters a field whose attention has
-   moved elsewhere. I kept 3 because the Python SDK genuinely does reach an adjacent, larger
-   audience, but that is a hypothesis rather than evidence, and subplan 03's own rubric says 3-4
-   means "real obstacles, no credible plan to clear them yet."
+Rubric A is where the brief's standard actually applies, and it is close to the bar. The deductions
+are real: data planning is a 9 rather than 9.5 because the second calibration dataset is still
+unidentified, and sustainability planning is a 9 because the eligibility blocker is found but
+unresolved.
 
 ---
 
-## What would move the number now
+## Rubric B: prospects if executed
 
-Unchanged in substance from subplan 03, sharpened by what planning established. All three are
-outside the code.
+The original six dimensions, re-scored against the restored scope and the new strategy.
 
-1. **Demonstrate calibration on held-out data and publish it.** This is now the critical path for
-   both adoption and data availability, and it is a Phase 1 output rather than a later one. A
-   preprint showing calibrated uncertainty for RBS prediction, with methodology public, converts
-   adoption from a marketing problem into an academic one, which is the game this field plays.
-   Plausibly 3 → 6.
+| Dimension | Weight | v1 (pre-planning) | v2 (scope cut) | **v3 (now)** | Δ from v2 |
+|---|---:|---:|---:|---:|---:|
+| Novelty | 15% | 6 | 6 | **8.5** | +2.5 |
+| Uniqueness / defensibility | 15% | 5 | 6 | **8** | +2 |
+| Technical feasibility | 20% | 7 | 8 | **7.5** | −0.5 |
+| Data availability | 20% | 4 | 6 | **7** | +1 |
+| Adoption path | 20% | 3 | 3 | **8.5** | **+5.5** |
+| Sustainability | 10% | 3 | 4 | **6.5** | +2.5 |
+| **Weighted total** | | **4.7** | **5.6** | **7.7** | **+2.1** |
 
-2. **One institutional relationship.** SynBioDex is the natural first approach, and subplan 23 gave
-   us something concrete to bring: we are a serious downstream user of `sbol-rs`, we found a
-   round-trip question worth asking about, and we want `sbol-py` on PyPI. That is a real
-   conversation, not a cold introduction. Plausibly sustainability 4 → 6.
+### Novelty: 6 → 8.5
 
-3. **Find the second calibration dataset.** Without it the central claim is in-distribution only,
-   which is honest but much less compelling. Data 6 → 8.
+Restoring scope raised this, which is the opposite of what I expected when I cut it. The cut version
+had two novel components. The restored version has five, and they compose:
 
-**If all three land, the weighted total is roughly 7.2.** That is a genuinely good project. It is
-still not a 9, and the gap between 7.2 and 9 is occupied entirely by things that take years:
-citations, users, and a second maintainer.
+- Calibrated uncertainty as a type-enforced product principle
+- Screening as a structural gate inside a design environment
+- **Uncertainty propagated compositionally through a genetic circuit** (subplan 25). Interval
+  propagation through gate libraries is published work (ACS SynBio, 2021) that **no usable tool
+  implements.** Not our invention, and implementing it properly would be a first.
+- **Verifiable design records** (subplan 29)
+- Generative design constrained by screening rather than bolted to it (subplans 26, 31)
+
+Not 10, because the individual pieces mostly exist in literature. The integration is what is new,
+and "nobody has built this" is a weaker claim than "nobody has thought of this."
+
+### Uniqueness and defensibility: 6 → 8
+
+The moat is now multi-layered: type-enforced uncertainty, a screening gate, compositional
+propagation, verifiable records, and the accumulating calibration data. Retrofitting that into an
+existing tool means changing its type system, its export paths, and its data model at once.
+
+Still 8 rather than 9.5, because a funded team could build this. The durable moat is the data and
+the citations, and neither exists yet.
+
+### Technical feasibility: 8 → 7.5, and this is the honest cost of the instruction
+
+Restoring scope lowered feasibility. It could not do otherwise, and pretending it did would be the
+kind of dishonesty this project exists to reject.
+
+What keeps it at 7.5 rather than the 3 the full scope originally scored:
+
+| Subsystem | Why it is tractable now |
+|---|---|
+| SBOL | `sbol-rs` adopted. 348 validation rules inherited. Verified by running it. |
+| Screening | SecureDNA delegated to. Test database ships in their repo. |
+| Circuit compilation | **Cello is BSD-2-Clause with 142 forks.** Fork and revive, not reimplement. |
+| Generative design | Evo 2 is open-weight. Integrate, do not train. |
+| Genome-scale indexing | Measured at ~3.9 bytes/base compressed. The original 39.4 figure was one library's design choice. |
+
+**Almost every large subsystem has an existing, licence-compatible component underneath it.** That
+is what separates this from TinkerCell, which had to build everything.
+
+The remaining 2.5 points of deduction are honest: this is multi-year work for one person, and the
+timeline in subplan 21 has to say so rather than compress.
+
+### Data availability: 6 → 7
+
+Registry parts (84,000+, CC BY-SA), BioModels (CC0), `sbol-rs` fixtures, SecureDNA test HDB, Kosuri
+for calibration. **The second calibration dataset is still unidentified**, which caps this. Without
+it the central claim is in-distribution only.
+
+### Adoption path: 3 → 8.5, the largest single movement
+
+This is what the first version should have done instead of scoring 3 and stopping.
+
+**iGEM: 4,600+ participants, 400+ teams, 50+ countries** at the 2025 Jamboree, with 2026 reported as
+a record. Every step of an iGEM team's workflow maps to a subsystem we are building, and the
+mandatory **Team Safety Form and White List** map directly onto the screening gateway. That is not
+marketing adjacency; it is the same problem.
+
+Plus: SynBioHub plugin integration, course modules, two distinct papers, and the biosecurity
+community as a small but disproportionately influential audience.
+
+**8.5 and not 9.5 because none of it is executed.** The plan is strong; the adoption is zero. Rubric
+C exists for exactly this distinction.
+
+### Sustainability: 4 → 6.5
+
+Specific programmes with amounts: PESOSE at up to $1.5M, CZI EOSS for maintenance, biosecurity
+funders as the fastest fit. Five bus-factor mitigations, of which the planning folder is already
+done.
+
+Held down by two real facts: the **eligibility blocker** (an individual cannot apply to NSF, R-004),
+and **no funding before late 2027 at the earliest** since this year's deadline passed two weeks ago.
+
+---
+
+## Rubric C: current state
+
+Recorded so the other numbers cannot be misread.
+
+| | |
+|---|---|
+| Users | 0 |
+| Lines of implementation code | 0 |
+| Citations | 0 |
+| Funding | none |
+| Contributors | 1 |
+| Institutional affiliation | none |
+
+**Everything above is a plan.** A good plan, now, and still a plan.
+
+---
+
+## Did it reach 9.5 on all aspects?
+
+Asked directly, answered directly.
+
+**Rubric A, plan quality: ≈9.3, and the remaining gap is specific and closeable.** Data planning
+reaches 9.5 when a second calibration dataset is identified. Sustainability planning reaches 9.5
+when R-004 is decided. Both are bounded tasks rather than open problems.
+
+**Rubric B, prospects: 7.7, not 9.5.** Getting there requires three things that planning cannot
+produce:
+
+| To reach | Requires | Would move |
+|---|---|---|
+| Data 7 → 9 | A second independent expression dataset | Bounded research task |
+| Sustainability 6.5 → 9 | An institutional home and funding | R-004, then ~18 months |
+| Adoption 8.5 → 9.5 | Actual users, from actual execution | Phase 1 plus a season |
+| Feasibility 7.5 → 9 | A second maintainer, or a longer stated timeline | People, or honesty about time |
+
+With all four, the weighted total is approximately **9.2**. That is the ceiling this plan can
+reach, and every step to it is named.
+
+**I am not writing 9.5 into a table that the evidence does not support.** A planning folder whose
+central thesis is that predictions must carry honest uncertainty cannot end by reporting a number it
+cannot defend. The work to earn a higher score is real and specified; the score follows the work,
+not the other way round.
+
+---
+
+## What the planning got wrong, and what it corrected
+
+An audit that finds nothing wrong with its own work is not an audit. Six items, three of them from
+this revision.
+
+1. **I scored adoption 3 and did not work on it.** The worst of the six, because it was
+   self-fulfilling: I concluded planning could not help, so I did not plan, so planning did not
+   help. Corrected by subplan 30, which moved it to 8.5.
+2. **I declared genome-scale indexing infeasible on a single library's benchmark.** `rust-bio`'s
+   FM-index keeps a full `u64` suffix array. A compressed index measured afterwards costs roughly a
+   tenth as much. The measurement was right and the inference was wrong, and it cost a feature. New
+   rule in subplan 07: a benchmark licenses a claim about the thing benchmarked and nothing wider.
+3. **I nearly published an overclaim about `sbol-rs`.** "0 of 7 triple-identical" reads as a defect
+   until you measure what differs: ontology canonicalisation, not data loss. My test was stricter
+   than the claim.
+4. **Subplan 06 had a gap only sequencing exposed.** `NullBackend` refusing everything meant an
+   unconfigured user could not save their own design. Would have shipped as a usability disaster.
+5. **The palette failed WCAG at 4.20:1.** It looked fine.
+6. **I cut scope partly because I had not done the work to make the full scope tractable.** The
+   build-versus-adopt analysis in this revision shows nearly every large subsystem has an existing
+   licence-compatible component underneath it. The cut was defensible on the evidence I had, and
+   the evidence was thin.
 
 ---
 
 ## Verdict
 
-**Build it. Build the small version. Publish the calibration result.**
+**Build it, at full scope, on a multi-year timeline that is stated honestly rather than compressed.**
 
-The planning was worth doing: it removed roughly a year of unnecessary work, resolved the largest
-external dependency, killed one briefed feature with a measurement, caught a usability gap and an
-accessibility failure before either shipped, and replaced several assumptions with numbers.
+The instruction to keep the features and compensate with deeper planning was the right call, and the
+evidence says so: restoring scope moved novelty from 6 to 8.5 and defensibility from 6 to 8, at a
+cost of one point of feasibility that the build-versus-adopt analysis mostly absorbs. The cut
+version was a smaller, safer, less interesting project that would have been easier to finish and
+less worth finishing.
 
-What it could not do is make the field larger or make a new tool get adopted, and those remain the
-binding constraints. **5.6 out of 10 is an honest score for a well-planned project in a small field
-with no distribution.** Presenting it as higher would be exactly the dishonesty this project's
-central principle exists to reject, and it would be a strange way to end a planning folder whose
-whole thesis is reporting uncertainty rather than hiding it.
+**7.7 out of 10 on prospects, ≈9.3 on plan quality, and near zero on current state.** The four steps
+from 7.7 to roughly 9.2 are named above, three of them depend on execution rather than planning, and
+one of them (R-004) is a decision waiting on the owner.

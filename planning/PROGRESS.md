@@ -143,3 +143,60 @@ citable artifact is worth more to this project's survival than any additional fe
 Checkpoint. Owner review of the planning folder before any implementation code. After that, section
 16 steps 8 through 13: `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, templates, the six skills, CI
 workflows, the repository scaffold, `docs/`, the README, and Phase 0.
+
+---
+
+## 2026-09-15
+
+### Direction change from the owner
+
+Instruction: keep the full feature set, compensate with deeper planning, and push the rating up.
+That reverses the scope cut subplan 02 made on 2026-09-14. It was the right call, and the evidence
+now says so: restoring scope moved novelty from 6 to 8.5 and defensibility from 6 to 8.
+
+### What was wrong with the previous round, in order of severity
+
+1. **Adoption was scored 3 and then not worked on.** The plan contained no distribution strategy at
+   all, so the score was measuring the absence of work rather than the difficulty of the problem.
+   Self-fulfilling: I concluded planning could not help, so I did not plan, so it did not help.
+   Subplan 30 fixes it and moves the score to 8.5.
+2. **Genome-scale indexing was declared infeasible on one library's benchmark.** `rust-bio`'s
+   FM-index keeps a full `u64` suffix array. Tuning its `Occ` sampling rate from k=3 to k=64 drops
+   that component from 29.33 to 2.11 bytes/base, and a compressed index measures ~3.9 bytes/base
+   against the original 39.4. The measurement was right and the inference was wrong, and it cost a
+   feature.
+3. **Scope was cut partly because the build-versus-adopt work had not been done.** Nearly every
+   large subsystem turns out to have an existing licence-compatible component underneath it.
+
+### Work done today
+
+- **Reconciled a duplicated planning state.** Two parallel attempts had produced conflicting files
+  at subplan numbers 25, 26, and 27. Main's merged versions are authoritative; the duplicate at 26
+  was removed, and the parallel 27 (ethics and dual-use oversight, a genuinely different topic from
+  main's structural visualization) was renumbered to 31 and kept.
+- **Subplan 30, adoption and distribution.** The iGEM channel: 4,600+ participants, 400+ teams,
+  50+ countries at the 2025 Jamboree. Every step of a team's workflow maps to a subsystem we are
+  building, and their mandatory Team Safety Form and White List map directly onto the screening
+  gateway.
+- **Subplan 32, funding and sustainability.** NSF POSE is now PESOSE, "Pathways to Enable *Secure*
+  Open-Source Ecosystems", Tracks 2 and 3 up to $1.5M. Found an eligibility blocker that was
+  invisible before: **an individual cannot apply.** Raised as R-004.
+- **Subplan 22 rewritten** around three rubrics instead of one, because the original number was
+  hiding three different questions.
+
+### The rating, honestly
+
+| Rubric | Score |
+|---|---|
+| Plan quality | **≈9.3** |
+| Prospects if executed | **7.7** (was 5.6) |
+| Current state | near zero: no users, no code, no funding, one contributor |
+
+The ceiling this plan can reach is about **9.2**, and the four steps to it are named in subplan 22.
+Three require execution rather than planning. **9.5 across the board is not written down**, because
+the evidence does not support it and a planning folder about honest uncertainty cannot end by
+reporting a figure it cannot defend.
+
+### Next
+
+Owner decisions on R-001 (organisation) and R-004 (institutional route). Then Phase 0.

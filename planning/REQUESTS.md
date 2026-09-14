@@ -17,6 +17,40 @@ Last reviewed: 2026-09-14
 
 ## OPEN
 
+### R-004: Decide the institutional route
+
+**Status:** OPEN, raised 2026-09-15
+**Blocks:** NSF eligibility entirely. The largest identified funding source is unavailable without
+this.
+
+**What is needed.** A decision on whether this project lives under an academic affiliation, a
+non-profit you form, or a company.
+
+**Why.** Research in subplan 32 found that NSF PESOSE (the successor to POSE, now "Pathways to
+Enable *Secure* Open-Source Ecosystems", NSF 26-506) restricts eligibility to US-based institutions
+of higher education, non-profit non-academic organisations, and for-profit organisations with
+research capability. **An individual is not eligible.** Track 1 is up to $300,000 and Tracks 2 and 3
+up to $1,500,000.
+
+This was not visible until the funding research and it is now the most consequential non-engineering
+item in the project. It gates the funding path, and subplan 22 identified an institutional
+relationship as the second-highest-leverage action available for sustainability.
+
+| Route | Cost | Assessment |
+|---|---|---|
+| Academic affiliation with a PI applicant | A relationship, shared credit | Most likely to work, and supplies the institutional relationship anyway |
+| Form a non-profit | Real legal and ongoing administrative work | Heavy this early |
+| Form a company | Changes the project's character | Contradicts the positioning |
+
+**Timing note:** the most recent PESOSE deadline was 1 September 2026, two weeks ago. The next cycle
+is roughly twelve months out, so there is time, and a proposal is stronger after Phase 1 exists
+anyway. But there is **no NSF funding before late 2027 at the earliest**.
+
+**What happens once resolved.** The funding sequence in subplan 32 becomes actionable, and
+sustainability stops being scored on mitigations alone.
+
+---
+
 ### R-001: GitHub organization creation
 
 **Status:** OPEN, raised 2026-09-14, interim workaround agreed
