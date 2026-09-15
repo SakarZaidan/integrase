@@ -23,6 +23,10 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 #![allow(clippy::module_name_repetitions)]
 
+pub mod import;
+
+pub use import::{ImportResult, from_document, from_turtle};
+
 /// Errors from SBOL import and export.
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]

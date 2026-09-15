@@ -10,7 +10,13 @@ authors.workspace      = true
 
 [dependencies]
 integrase-core = { path = "../integrase-core", version = "0.0.0" }
+sbol3     = "=1.0.0"
+sbol-rdf  = "=1.0.0"
 thiserror.workspace = true
+
+[dev-dependencies]
+sbol-convert = "=1.0.0"
+sbol2        = "=1.0.0"
 
 [lints]
 workspace = true
