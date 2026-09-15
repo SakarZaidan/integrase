@@ -181,6 +181,16 @@ phase placement is an open question rather than automatically "later".
 
 ---
 
+## Phase 1b
+
+- [x] ~~CLI~~ **Done.** import, predict, search, export, scope. Export refuses without a backend and
+      writes nothing to stdout when it does.
+- [x] ~~SBOL export~~ **Done**, with a `trybuild` proof of the gate.
+- [ ] `integrase-screen`: the SecureDNA backend (needs a running `synthclient`)
+- [ ] SVG output
+
+---
+
 ## Phase 1a: the honest predictor
 
 The gate that can fail and block the phase: an 80% interval contains the truth 80% +/- 5% on

@@ -100,6 +100,55 @@ pub enum DomainReason {
     },
 }
 
+impl fmt::Display for DomainReason {
+    /// Human-readable, and deliberately the single definition.
+    ///
+    /// The CLI and the Python bindings both render these. Two separate
+    /// descriptions would drift, and a user comparing output from the two
+    /// surfaces would see the same verdict worded differently, which invites
+    /// the reasonable conclusion that they mean different things.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::HostMismatch { got, expected } => {
+                write!(f, "host {got} differs from the fitted host {expected}")
+            }
+            Self::NonCanonicalStartCodon { codon } => {
+                write!(f, "non-canonical start codon {codon}")
+            }
+            Self::SpacerOutOfRange { length } => {
+                write!(f, "spacer length {length} is outside the fitted range")
+            }
+            Self::LengthOutOfRange { length } => {
+                write!(f, "length {length} is outside the fitted range")
+            }
+            Self::StrongSecondaryStructure {
+                free_energy_kcal_per_mol,
+            } => {
+                write!(
+                    f,
+                    "strong secondary structure, {free_energy_kcal_per_mol:.2} kcal/mol"
+                )
+            }
+            Self::PossibleSecondaryStructure { stem_fraction } => write!(
+                f,
+                "possible secondary structure, {:.0}% of the sequence could sit in a stem",
+                stem_fraction * 100.0
+            ),
+            Self::EmbeddingDistance { distance } => {
+                write!(
+                    f,
+                    "embedding distance {distance:.3} from the calibration set"
+                )
+            }
+            // No wildcard arm, deliberately. `non_exhaustive` binds other
+            // crates, not this one, so this match is exhaustive here and the
+            // compiler will flag a new variant that has no rendering. That is
+            // the behaviour we want: a domain reason a user cannot read is a
+            // bug, and it should fail the build rather than print a shrug.
+        }
+    }
+}
+
 /// Whether an input falls inside the range where a model was validated.
 ///
 /// This is deliberately a **separate field** from the interval, and that
