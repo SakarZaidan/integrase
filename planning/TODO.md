@@ -52,6 +52,7 @@ Target: complete planning folder, then owner review before any implementation co
 - [x] 30 Adoption and distribution *(added 2026-09-15: the gap that kept adoption at 3)*
 - [x] 31 Ethics, dual-use oversight, institutional integration *(added, scope restoration)*
 - [x] 32 Funding and institutional sustainability *(added 2026-09-15)*
+- [x] 33 Education sandbox *(added 2026-09-15: owner-requested feature)*
 - [x] 25 Circuit logic compilation *(scope restored, 2026-09-14)*
 - [x] 26 Generative design and foundation model integration *(scope restored)*
 - [x] 27 Structural and 3D visualization *(scope restored, redefined)*
@@ -153,6 +154,19 @@ Both verified: 11 of 11 checks, three platforms, first run.
 - [ ] **Secret scanning**: still unavailable on a private repo at this tier. Enable on going public.
 - [ ] **Flip the repository to public.** README and scaffold now exist, which was the stated
       condition. Outward-facing and effectively irreversible, so this waits on the owner.
+
+---
+
+## Education sandbox (subplan 33)
+
+Owner-requested. Serves the adoption channel subplan 22 scored as the binding constraint, so its
+phase placement is an open question rather than automatically "later".
+
+- [ ] Decide phase placement against Phase 1a
+- [ ] Find a biology educator to review content accuracy. Getting teaching material wrong is the
+      main risk and not one I can check alone.
+- [ ] Scope the fictional organism: gene count, which processes
+- [ ] Choose or write the stochastic simulation loop
 
 ---
 
