@@ -179,6 +179,21 @@ biologically right. Subplan 16 says this plainly and the docs repeat it.
 
 ---
 
+## Mutation testing, and the harness that lies to you
+
+R-2.5 says a checker must be tested against input it should reject. Applied to a test suite, that
+means introducing a known defect and confirming the suite turns red.
+
+**Use `tools/mutate.sh`, not an ad-hoc sed and grep.** The ad-hoc version reported `MISSED` twice
+for mutations that were never applied at all: once because shell quoting mangled the search pattern,
+and once because the mutant did not compile and a grep for `FAILED` saw a compile error instead.
+
+Those are the **opposite** conclusion from a real miss. A mutation tool that cannot distinguish
+"your tests are weak" from "my mutation did nothing" reports the suite as weaker than it is, and
+invites writing tests that were never needed. `tools/mutate.sh` reports four outcomes distinctly
+(`CAUGHT`, `MISSED`, `INVALID: pattern not found`, `INVALID: mutant does not compile`) and treats
+anything ambiguous as invalid rather than guessing.
+
 ## Tooling
 
 | Concern | Tool |
