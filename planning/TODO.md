@@ -136,22 +136,42 @@ dropped when that subplan gets written.
 
 ---
 
-## After the checkpoint (brief section 16, steps 8 through 13)
+## Phase 0: complete (2026-09-15)
 
-Not started, listed so the shape of the next phase is visible.
+Definition of done was "a fresh clone runs `just setup && just check`, and CI passes on a real PR."
+Both verified: 11 of 11 checks, three platforms, first run.
 
-- [ ] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`
-- [ ] Issue templates, PR template, `CODEOWNERS`
-- [ ] Six skills under `.claude/skills/`: `pr-review`, `merge-decision`, `ai-code-review`,
-      `issue-comment-response`, `planning-sync`, `writing-voice`
-- [ ] CI/CD workflows per subplan 18
-- [ ] Full repo configuration: required status checks, Dependabot across cargo/gomod/pip, secret
-      scanning and push protection, topics and description
-- [ ] Repository scaffold: Rust workspace, Go module, Python package, desktop app shell
-- [ ] `docs/` per subplan 20
-- [ ] Root `README.md`
-- [ ] Flip repository to public once README and scaffold exist
-- [ ] Phase 1 implementation per `FINAL-DECISION.md`
+- [x] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`
+- [x] Issue templates, PR template, `CODEOWNERS` (every path verified to exist)
+- [x] Six skills under `.claude/skills/`
+- [x] CI/CD workflows per subplan 18 (11 jobs)
+- [x] Repository scaffold: 9 crates, Python package, `proto/`, `just` targets
+- [x] `docs/` with the two pages that make a first release honest
+- [x] Root `README.md`
+- [x] Full repo configuration: 11 required checks, admins bound, linear history,
+      squash-only, Dependabot, topics, description
+- [ ] **Secret scanning**: still unavailable on a private repo at this tier. Enable on going public.
+- [ ] **Flip the repository to public.** README and scaffold now exist, which was the stated
+      condition. Outward-facing and effectively irreversible, so this waits on the owner.
+
+---
+
+## Phase 1a: the honest predictor
+
+The gate that can fail and block the phase: an 80% interval contains the truth 80% +/- 5% on
+held-out data, **stratified by expression decile**, with **component-wise splits**. Not marginal
+coverage, not a random split. Both of those are easy to pass and mean nothing.
+
+- [ ] **Resolve ViennaRNA licensing.** Blocks the RBS baseline, which is the headline feature.
+      Contingency already decided (FINAL-DECISION decision 9): ship without the structure-dependent
+      terms and widen the intervals.
+- [ ] `integrase-core`: motif and restriction-site search over the compressed index
+- [ ] `integrase-sbol`: import via `sbol-rs`, with conversion reports surfaced
+- [ ] `integrase-sim`: the thermodynamic RBS model
+- [ ] Split conformal calibration on Kosuri et al. 2013
+- [ ] The evaluation harness, including stratified coverage
+- [ ] `integrase-py`: the SDK backed by the real core
+- [ ] Identify a second independent dataset for out-of-distribution evaluation
 
 ---
 
