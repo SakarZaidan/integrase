@@ -249,21 +249,36 @@ impl<T> Prediction<T> {
         }
     }
 
-    /// Builds a prediction from a model with no calibration evidence.
+    /// Builds a prediction with no interval, preserving the domain verdict.
     ///
     /// No interval is attached, because a model that has not demonstrated
     /// coverage has no honest interval to report. Absence is the truthful
     /// rendering; a wide interval would imply a quantified uncertainty we have
     /// not earned.
+    ///
+    /// **The verdict is carried through rather than replaced.** An earlier
+    /// version hardcoded [`DomainVerdict::Uncalibrated`] here, which silently
+    /// discarded stronger signals: a sequence from the wrong organism reported
+    /// only "uncalibrated" and the host mismatch vanished between
+    /// `domain_check` and the value the user received. The Rust unit tests
+    /// missed it because they exercised `domain_check` directly; the Python
+    /// binding test caught it because it went through the real path.
     #[must_use]
-    pub fn uncalibrated(value: T, model: ModelId) -> Self {
+    pub fn without_interval(value: T, model: ModelId, domain: DomainVerdict) -> Self {
         Self {
             value,
             interval: None,
             nominal_coverage: 0.0,
             model,
-            domain: DomainVerdict::Uncalibrated,
+            domain,
         }
+    }
+
+    /// Convenience for a model with no calibration evidence and nothing else to
+    /// report.
+    #[must_use]
+    pub fn uncalibrated(value: T, model: ModelId) -> Self {
+        Self::without_interval(value, model, DomainVerdict::Uncalibrated)
     }
 
     /// The predicted value.

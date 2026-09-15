@@ -378,18 +378,38 @@ impl RbsThermodynamicModel {
 
     /// Decides whether this input falls inside the model's validated domain.
     ///
-    /// Returns [`DomainVerdict::Uncalibrated`] unconditionally at present,
-    /// because no calibration has been demonstrated. The other branches are
-    /// computed anyway and are what this returns once the Phase 1a coverage
-    /// gate is met.
+    /// # Precedence, and why it is this way round
+    ///
+    /// An earlier version returned [`DomainVerdict::Uncalibrated`] whenever the
+    /// card carried no measured coverage, short-circuiting every other signal.
+    /// That suppressed useful, true information: a *Paracoccus denitrificans*
+    /// sequence submitted to a model fitted on *E. coli* reported only
+    /// "uncalibrated", hiding the host mismatch entirely.
+    ///
+    /// The mismatch is a fact about the model's **parameters**, not about its
+    /// calibration, and it holds whether or not coverage has ever been
+    /// measured. So out-of-distribution wins:
+    ///
+    /// 1. Out of distribution, if the input is outside what the model was
+    ///    fitted for. True regardless of calibration, and the most actionable
+    ///    thing a user can be told.
+    /// 2. Uncalibrated, if the input looks fine but no coverage has been
+    ///    demonstrated.
+    /// 3. The marginal and in-distribution signals otherwise.
+    ///
+    /// The absence of an interval is what communicates "uncalibrated" in cases
+    /// where a stronger signal takes precedence, and [`Prediction::interval`]
+    /// returning `None` is unambiguous about that.
     #[must_use]
     pub fn domain_check(&self, input: &RbsInput) -> DomainVerdict {
-        // Honest default. This model has no measured coverage, so it may not
-        // claim one, whatever the other signals say.
-        if self.card.measured_coverage.is_none() {
-            return DomainVerdict::Uncalibrated;
+        let signal = self.domain_signals(input);
+        match signal {
+            // Outside what the model was fitted for. True either way, so it
+            // takes precedence over the calibration state.
+            DomainVerdict::OutOfDistribution { .. } => signal,
+            _ if self.card.measured_coverage.is_none() => DomainVerdict::Uncalibrated,
+            other => other,
         }
-        self.domain_signals(input)
     }
 
     /// The domain signals, independent of whether calibration exists.
@@ -462,7 +482,13 @@ impl RbsThermodynamicModel {
             // No demonstrated coverage means no honest interval. Absence is the
             // truthful rendering; a wide interval would imply a quantified
             // uncertainty this model has not earned.
-            None => Ok(Prediction::uncalibrated(rate, self.card.id.clone())),
+            // The verdict is carried through. Dropping it here is the bug that
+            // made a host mismatch invisible to callers.
+            None => Ok(Prediction::without_interval(
+                rate,
+                self.card.id.clone(),
+                verdict,
+            )),
             Some(cov) => {
                 // Placeholder until calibration exists. The Phase 1a gate
                 // replaces this with conformal quantiles from held-out data.
@@ -816,5 +842,96 @@ mod wobble_tests {
     fn a_watson_crick_stem_still_counts() {
         // GGGG against CCCC: four Watson-Crick pairs.
         assert!(stem_fraction(b"AAGGGGAAAACCCCAA") > 0.4);
+    }
+}
+
+#[cfg(test)]
+mod precedence_tests {
+    use super::*;
+
+    fn input(host: &str, codon: &[u8; 3]) -> RbsInput {
+        RbsInput {
+            utr: b"TTTTTTAGGAGGTTTTT".to_vec(),
+            start_codon: *codon,
+            host: host.into(),
+        }
+    }
+
+    /// The regression this precedence rule exists for.
+    ///
+    /// An uncalibrated model still knows which organism it was fitted on, and a
+    /// user submitting a different one deserves to be told. The earlier version
+    /// returned only `Uncalibrated`, which suppressed that.
+    #[test]
+    fn a_host_mismatch_survives_the_model_being_uncalibrated() {
+        let m = RbsThermodynamicModel::new();
+        assert!(
+            m.card().measured_coverage.is_none(),
+            "precondition: uncalibrated"
+        );
+
+        match m.domain_check(&input("Paracoccus denitrificans", b"ATG")) {
+            DomainVerdict::OutOfDistribution {
+                reason: DomainReason::HostMismatch { got, expected },
+            } => {
+                assert_eq!(got, "Paracoccus denitrificans");
+                assert_eq!(expected, FITTED_HOST);
+            }
+            other => panic!("host mismatch must not be masked by Uncalibrated; got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn an_unknown_start_codon_also_survives() {
+        let m = RbsThermodynamicModel::new();
+        assert!(matches!(
+            m.domain_check(&input(FITTED_HOST, b"AAA")),
+            DomainVerdict::OutOfDistribution { .. }
+        ));
+    }
+
+    /// With no stronger signal, an uncalibrated model says so.
+    #[test]
+    fn a_fine_input_on_an_uncalibrated_model_reports_uncalibrated() {
+        let m = RbsThermodynamicModel::new();
+        assert_eq!(
+            m.domain_check(&input(FITTED_HOST, b"ATG")),
+            DomainVerdict::Uncalibrated
+        );
+    }
+
+    /// Whatever the verdict, an uncalibrated model still offers no interval.
+    #[test]
+    fn precedence_does_not_create_an_interval_out_of_nothing() {
+        let m = RbsThermodynamicModel::new();
+        for host in [FITTED_HOST, "Paracoccus denitrificans"] {
+            let p = m.predict(&input(host, b"ATG")).unwrap();
+            assert!(
+                p.interval().is_none(),
+                "no measured coverage means no interval, whatever the domain verdict says"
+            );
+        }
+    }
+
+    /// **The bug the unit tests missed.**
+    ///
+    /// `domain_check` returned the host mismatch correctly, and `predict` threw
+    /// it away by calling a constructor that hardcoded `Uncalibrated`. Testing
+    /// the component in isolation passed; the user-facing path was wrong. This
+    /// goes through `predict`, which is what a caller actually uses.
+    #[test]
+    fn predict_carries_the_domain_verdict_through_to_the_caller() {
+        let m = RbsThermodynamicModel::new();
+        let p = m
+            .predict(&input("Paracoccus denitrificans", b"ATG"))
+            .unwrap();
+        match p.domain() {
+            DomainVerdict::OutOfDistribution {
+                reason: DomainReason::HostMismatch { got, .. },
+            } => assert_eq!(got, "Paracoccus denitrificans"),
+            other => {
+                panic!("predict must not discard the verdict domain_check computed; got {other:?}")
+            }
+        }
     }
 }

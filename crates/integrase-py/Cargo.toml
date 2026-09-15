@@ -1,0 +1,37 @@
+[package]
+name        = "integrase-py"
+description = "Python bindings for Integrase."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[lib]
+name       = "_integrase"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+integrase-core = { path = "../integrase-core", version = "0.0.0" }
+integrase-sim  = { path = "../integrase-sim",  version = "0.0.0" }
+integrase-sbol = { path = "../integrase-sbol", version = "0.0.0" }
+pyo3 = { version = "0.29", features = ["abi3-py311"] }
+
+[features]
+# `extension-module` must NOT be on by default.
+#
+# It tells PyO3 to skip linking libpython, because a built extension gets those
+# symbols from the host interpreter at import time. That is right for a wheel
+# and wrong for `cargo test`, which links a real binary.
+#
+# Linux tolerates undefined symbols in a shared library and happily linked
+# anyway. macOS does not, and the CI job there failed with a wall of
+# `_PyExc_AttributeError, referenced from:` errors. Requiring the macOS job
+# rather than leaving it advisory is what surfaced this.
+#
+# maturin turns the feature on when building the wheel; see python/pyproject.toml.
+extension-module = ["pyo3/extension-module"]
+
+[lints]
+workspace = true

@@ -60,6 +60,14 @@ jobs:
         working-directory: python
         run: uv run mypy --strict src
 
+      # Guards the hand-written stub against the compiled extension drifting
+      # apart. Cheap here, and there is nothing else keeping them in step.
+      - name: python bindings agree with their stub
+        working-directory: python
+        run: |
+          uv run maturin develop --uv
+          uv run pytest -q tests/test_bindings.py::test_the_type_stub_covers_every_exported_name
+
       # The brief's writing rules apply to every document in this repository,
       # and a rule enforced only by good intentions decays.
       - name: prose voice
@@ -95,11 +103,17 @@ jobs:
       - name: doctests
         run: cargo test --doc --workspace
 
-      - name: python tests
+      # The extension is a compiled artifact. Building it before the tests is
+      # not optional: a stale copy runs against old Rust code and reports green.
+      - name: build the Rust extension
         working-directory: python
         run: |
           uv sync
-          uv run pytest -q
+          uv run maturin develop --uv
+
+      - name: python tests
+        working-directory: python
+        run: uv run pytest -q
 
   # ---------------------------------------------------------------- stage 2b
   # The screening suite is its own required, non-skippable job.

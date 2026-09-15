@@ -209,7 +209,8 @@ coverage, not a random split. Both of those are easy to pass and mean nothing.
 - [x] ~~Evaluation harness with stratified coverage~~ **Done.** Demonstrated that marginal coverage
       of 0.805 can hide strata running from 1.000 down to 0.520, which is the argument for the
       Phase 1a gate being stratified.
-- [ ] `integrase-py`: the SDK backed by the real core
+- [x] ~~`integrase-py`: the SDK backed by the real core~~ **Done.** PyO3 bindings, `float()` and
+      `int()` both refused, batch path, hand-written stub checked against the extension in CI.
 - [ ] Identify a second independent dataset for out-of-distribution evaluation -> R-005
 
 ---

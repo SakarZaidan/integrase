@@ -144,8 +144,15 @@ reports `DomainVerdict::Uncalibrated` and is not permitted to claim a coverage f
 **R-3.1 Every new dependency is justified in the PR description.** What it does, why it beats the
 alternatives, and why writing it ourselves is worse. A dependency added without this is rejected.
 
-**R-3.2 Vetting criteria.** A dependency in a correctness-critical path (`integrase-core`,
-`integrase-sim`, `integrase-screen`) must clear all of:
+**R-3.2 Vetting criteria.** Every dependency, before adoption:
+
+- **Checked against the advisory database first, not after CI says so.** Amended 2026-09-15:
+  `pyo3` was added at 0.27 carrying two known vulnerabilities, including an out-of-bounds read,
+  which is a poor look in a workspace that denies `unsafe_code`. `cargo deny check advisories` now
+  runs as part of `just check`, and `just advisories` exists as the fast pre-adoption check.
+
+A dependency in a correctness-critical path (`integrase-core`, `integrase-sim`,
+`integrase-screen`) must additionally clear all of:
 
 - Maintained: a release or meaningful commit within 12 months.
 - Adopted: enough usage that bugs surface elsewhere first. As a rule of thumb, four-figure recent
