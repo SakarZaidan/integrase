@@ -200,13 +200,17 @@ coverage, not a random split. Both of those are easy to pass and mean nothing.
 - [x] ~~Split conformal calibration machinery~~ **Done.** Validated on synthetic data: coverage
       holds at 0.50/0.80/0.90/0.95, and under heavy-tailed noise, which is the distribution-free
       claim actually being tested.
-- [ ] Fit it to Kosuri et al. 2013. **Data not yet sourced**; the PNAS accession was not in search
-      results and needs locating.
+- [x] ~~Locate the Kosuri data.~~ Found: PMC3752251, supplementary Datasets S1-S3. PMC blocks
+      automated retrieval and the redistribution terms are unresolved (NAS copyright), so it is
+      loaded from a local path and gitignored. See `docs/calibration-data.md` and R-005.
+- [x] ~~Dataset loading and component-wise splitting~~ **Done.**
+- [ ] **Fit the calibration to the real data.** Blocked on R-005: the file has to be downloaded by
+      hand.
 - [x] ~~Evaluation harness with stratified coverage~~ **Done.** Demonstrated that marginal coverage
       of 0.805 can hide strata running from 1.000 down to 0.520, which is the argument for the
       Phase 1a gate being stratified.
 - [ ] `integrase-py`: the SDK backed by the real core
-- [ ] Identify a second independent dataset for out-of-distribution evaluation
+- [ ] Identify a second independent dataset for out-of-distribution evaluation -> R-005
 
 ---
 

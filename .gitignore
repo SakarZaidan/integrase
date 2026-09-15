@@ -91,6 +91,10 @@ src-tauri/gen/
 *.pt
 *.pth
 /models/
+# Calibration data. Not distributed with Integrase: redistribution terms are
+# unresolved (NAS copyright) and R-3.3 holds that data licences are checked like
+# code licences. See docs/calibration-data.md.
+/data/calibration/
 /data/raw/
 /data/interim/
 /data/processed/

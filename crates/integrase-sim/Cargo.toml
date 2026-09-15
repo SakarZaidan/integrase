@@ -13,5 +13,12 @@ integrase-core = { path = "../integrase-core", version = "0.0.0" }
 thiserror.workspace = true
 serde.workspace     = true
 
+[dev-dependencies]
+# Temp files that clean themselves up on drop. Justified per R-3.1: the
+# hand-rolled version leaked files when a test panicked, and ignoring the
+# removal result tripped R-1.3's no-swallowed-errors rule. Already present
+# transitively via proptest.
+tempfile = "3"
+
 [lints]
 workspace = true
