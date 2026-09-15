@@ -82,6 +82,17 @@ pub enum DomainReason {
         /// Folding free energy, kcal/mol.
         free_energy_kcal_per_mol: f64,
     },
+    /// A heuristic suggests the sequence may fold, without computing how much.
+    ///
+    /// Distinct from [`DomainReason::StrongSecondaryStructure`] deliberately.
+    /// That variant carries a real folding free energy. This one carries only
+    /// the fraction of the sequence sitting in a possible stem, because no
+    /// structure prediction was performed. Reporting a NaN energy would claim a
+    /// computation that did not happen.
+    PossibleSecondaryStructure {
+        /// Fraction of the sequence within a candidate stem, 0 to 1.
+        stem_fraction: f64,
+    },
     /// The input is far from the calibration set in embedding space.
     EmbeddingDistance {
         /// Distance, in the units the model documents.

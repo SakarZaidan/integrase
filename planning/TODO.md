@@ -176,12 +176,13 @@ The gate that can fail and block the phase: an 80% interval contains the truth 8
 held-out data, **stratified by expression decile**, with **component-wise splits**. Not marginal
 coverage, not a random split. Both of those are easy to pass and mean nothing.
 
-- [ ] **Resolve ViennaRNA licensing.** Blocks the RBS baseline, which is the headline feature.
-      Contingency already decided (FINAL-DECISION decision 9): ship without the structure-dependent
-      terms and widen the intervals.
+- [x] ~~Resolve ViennaRNA licensing.~~ **Done.** Not OSI-approved: forbids redistribution for a fee
+      and requires contacting authors for commercial use. Fails R-3.2. Contingency 9 applied; see
+      `planning/decisions/0001`.
+- [x] ~~`integrase-sim`: the thermodynamic RBS model~~ **Done.** Three of five terms, omissions
+      disclosed in the model card, reports `Uncalibrated` until the coverage gate is met.
 - [ ] `integrase-core`: motif and restriction-site search over the compressed index
 - [ ] `integrase-sbol`: import via `sbol-rs`, with conversion reports surfaced
-- [ ] `integrase-sim`: the thermodynamic RBS model
 - [ ] Split conformal calibration on Kosuri et al. 2013
 - [ ] The evaluation harness, including stratified coverage
 - [ ] `integrase-py`: the SDK backed by the real core
