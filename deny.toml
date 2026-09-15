@@ -5,6 +5,40 @@
 [advisories]
 yanked = "deny"
 
+# Documented exceptions. Each one states what it is, why it cannot be fixed
+# here, whether it is reachable, and what has to happen before it is removed.
+# An exception with no expiry condition is a permanent hole wearing a comment.
+ignore = [
+    # ---------------------------------------------------------------------
+    # RUSTSEC-2026-0194: quadratic runtime checking start tags for duplicate
+    # attribute names in quick-xml.
+    # RUSTSEC-2026-0195: unbounded namespace-declaration allocation in
+    # quick-xml's NsReader, enabling memory-exhaustion denial of service.
+    #
+    # Chain: integrase-sbol -> sbol-rdf -> oxrdfio -> oxrdfxml -> quick-xml 0.37.5
+    #
+    # NOT FIXABLE HERE. The advisories say upgrade to quick-xml >= 0.41.0.
+    # oxrdfxml 0.2.4 is the latest release (2026-08-30) and pins quick-xml
+    # "^0.37", so no version selection on our side resolves it. oxrdfio depends
+    # on oxrdfxml unconditionally rather than behind a feature, so it cannot be
+    # excluded either.
+    #
+    # REACHABILITY: currently not reachable from our public API. The only entry
+    # point is `integrase_sbol::from_turtle`, which parses Turtle through oxttl.
+    # The RDF/XML parser is linked but never called. A test in
+    # `crates/integrase-sbol/tests/reachability.rs` fails if an RDF/XML entry
+    # point is added, which forces this exception to be revisited rather than
+    # silently becoming load-bearing.
+    #
+    # MITIGATION: `integrase-sbol` caps input size before parsing, which blunts
+    # both denial-of-service vectors for any parser it feeds.
+    #
+    # REMOVE WHEN: oxrdfxml releases a version taking quick-xml >= 0.41.0.
+    # Reported upstream; see planning/TODO.md.
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml via oxrdfxml; unfixable downstream, RDF/XML path unreachable, see notes above" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml via oxrdfxml; unfixable downstream, RDF/XML path unreachable, see notes above" },
+]
+
 [licenses]
 # Permissive only. Anything copyleft entering the dependency tree is a decision,
 # not an accident, and it should surface as a build failure rather than a
@@ -18,6 +52,12 @@ allow = [
     "ISC",
     "Unicode-3.0",
     "Zlib",
+    # A *data* licence, not a code licence, and a good illustration of R-3.3's
+    # point that data carries its own terms. webpki-roots ships Mozilla's CA
+    # certificate set under CDLA-Permissive-2.0, which permits use,
+    # modification, and redistribution with no copyleft and no share-alike.
+    # Compatible with Apache-2.0 and safe to redistribute.
+    "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.9
 

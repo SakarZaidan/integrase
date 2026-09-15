@@ -15,6 +15,20 @@ use sbol3::prelude::*;
 /// SBOL encoding IRI for IUPAC nucleic acid sequences.
 const ENCODING_IUPAC_DNA: &str = "https://identifiers.org/edam:format_1207";
 
+/// Largest document this importer will hand to a parser, in bytes.
+///
+/// Defence in depth rather than a capability limit. Two live advisories against
+/// `quick-xml` in our dependency tree (RUSTSEC-2026-0194 and -0195) are
+/// denial-of-service vectors reachable only through adversarial input:
+/// quadratic runtime on duplicate attribute names, and unbounded
+/// namespace-declaration allocation. Neither is fixable downstream and neither
+/// is currently reachable from this API, but a size cap blunts both for any
+/// parser this module feeds, and costs nothing for real files.
+///
+/// 64 MiB is far above any genuine SBOL design. The largest fixture in the
+/// vendored corpus is a few kilobytes.
+const MAX_DOCUMENT_BYTES: usize = 64 * 1024 * 1024;
+
 /// What was found in a document, and what could not be carried across.
 #[derive(Debug, Clone)]
 pub struct ImportResult {
@@ -37,6 +51,14 @@ pub struct ImportResult {
 /// real-world file that violates a best-practice rule is still a file a user
 /// wants to look at.
 pub fn from_turtle(turtle: &str) -> Result<ImportResult, SbolError> {
+    // Checked before parsing, per the edge-case pattern in subplan 11: an
+    // out-of-memory kill is not an error message.
+    if turtle.len() > MAX_DOCUMENT_BYTES {
+        return Err(SbolError::TooLarge {
+            len: turtle.len(),
+            max: MAX_DOCUMENT_BYTES,
+        });
+    }
     let doc = sbol3::Document::read_turtle(turtle).map_err(|e| SbolError::Read {
         detail: e.to_string(),
     })?;

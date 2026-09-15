@@ -170,6 +170,17 @@ phase placement is an open question rather than automatically "later".
 
 ---
 
+## Upstream contributions owed (subplan 23)
+
+- [ ] **Report RUSTSEC-2026-0194 and -0195 to Oxigraph.** `oxrdfxml 0.2.4` pins `quick-xml ^0.37`;
+      the advisories require >= 0.41.0. This is the actual fix location, and it is unfixable
+      downstream. Remove the `deny.toml` exceptions when a fixed `oxrdfxml` ships.
+- [ ] Note the same to `sbol-rs`, since they inherit it through `sbol-rdf`.
+- [ ] Open the `sbol-py` PyPI conversation
+- [ ] File the `urn_design.ttl` round-trip observation
+
+---
+
 ## Phase 1a: the honest predictor
 
 The gate that can fail and block the phase: an 80% interval contains the truth 80% +/- 5% on

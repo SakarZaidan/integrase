@@ -346,3 +346,56 @@ because a containment hierarchy is genuinely present in the domain being modelle
 
 Python leads here rather than follows, which is the only part of the project where that is true.
 Students read and write the model.
+
+---
+
+## 2026-09-15: Phase 1a underway, and CI earned its keep
+
+### Built
+
+**The thermodynamic RBS model** (PR #20) and **SBOL 3 import** (PR #21). 33 of 33 vendored pySBOL3
+fixtures parse, yielding 43 designs. Workspace at 55 tests.
+
+### ViennaRNA resolved, and the answer was no
+
+Its licence is not OSI-approved: it forbids redistribution for a fee and asks for author contact
+before commercial incorporation, which is incompatible with Apache-2.0 and fails R-3.2.
+`FINAL-DECISION` contingency 9 applied, recorded as ADR 0001. Three of five free-energy terms ship;
+the two needing structure prediction are omitted and the model card says so, with a test asserting
+it keeps saying so.
+
+### cargo-deny found three real things on PR #21
+
+The supply-chain surface subplan 10 warned about turned out to be real, and all three arrived with
+`sbol-rs`.
+
+**Two live advisories against `quick-xml 0.37.5`** (RUSTSEC-2026-0194 and -0195), both
+denial-of-service: quadratic runtime on duplicate attribute names, and unbounded
+namespace-declaration allocation. Reached through `sbol-rdf -> oxrdfio -> oxrdfxml`.
+
+**Not fixable downstream.** The advisories require `quick-xml >= 0.41.0`. `oxrdfxml 0.2.4` is the
+latest release and pins `^0.37`, and `oxrdfio` depends on it unconditionally rather than behind a
+feature, so no version selection or feature flag on our side resolves it.
+
+**Not currently reachable**, which is the part that matters. Our only entry point is `from_turtle`,
+which parses through `oxttl`. The XML parser is linked and never called.
+
+Three responses rather than one. A documented, conditional exception in `deny.toml` stating what it
+is, why it cannot be fixed here, and what must happen before it is removed. A 64 MiB input cap
+before parsing, which blunts both vectors for any parser this module feeds. And a **reachability
+test** that fails the build if an RDF/XML entry point is added, because the reachability argument is
+the part most likely to quietly stop being true while the exception silently becomes load-bearing.
+Verified in both directions: adding an RDF/XML function fires it, and renaming `from_turtle` fires
+the mirror guard that stops it passing vacuously.
+
+**A licence rejection: CDLA-Permissive-2.0** on `webpki-roots`, via `ureq`, via `sbol-ontology`.
+This is a good illustration of R-3.3's point that data carries its own terms: the licence covers
+Mozilla's CA certificate set shipped inside the crate. It is permissive with no copyleft or
+share-alike, so it was added to the allow list with that reasoning recorded rather than waved
+through.
+
+### Owed upstream
+
+Reporting the `quick-xml` chain to Oxigraph is now the highest-value contribution available, since
+that is the actual fix location and every downstream SBOL user inherits it. Added to `TODO.md`
+alongside the `sbol-py` and `urn_design.ttl` items.

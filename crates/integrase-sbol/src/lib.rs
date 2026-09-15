@@ -43,6 +43,16 @@ pub enum SbolError {
         /// The IRI in question.
         iri: String,
     },
+    /// The document exceeds the size this importer will parse.
+    ///
+    /// Refused before parsing rather than after allocation.
+    #[error("document is {len} bytes; this importer refuses anything over {max}")]
+    TooLarge {
+        /// Size supplied.
+        len: usize,
+        /// The limit.
+        max: usize,
+    },
 }
 
 /// What a version conversion changed.
