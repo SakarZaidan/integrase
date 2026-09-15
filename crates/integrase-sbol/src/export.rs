@@ -278,17 +278,13 @@ mod tests {
 
     // --- The gate ---------------------------------------------------------
 
-    /// `export_for_synthesis` takes `Cleared<Design>`, which only the screening
-    /// gateway can construct. The compile-time proof is in
-    /// `tests/gate_compile_fail.rs`; this asserts the signature has not been
-    /// loosened to accept a bare `Design`.
-    #[test]
-    fn the_synthesis_export_signature_still_requires_cleared() {
-        let src = include_str!("export.rs");
-        assert!(
-            src.contains("pub fn export_for_synthesis(\n    cleared: &Cleared<Design>,"),
-            "export_for_synthesis must take Cleared<Design>. Loosening this to a bare Design \
-             would silently remove the screening gate, which is tier-0 rule R-0.2."
-        );
-    }
+    // The signature guarantee is proved by `tests/gate_compile_fail.rs`, which
+    // asserts that calling `export_for_synthesis` with a bare `Design` does not
+    // compile, and pins the exact error.
+    //
+    // An earlier version of this module also grepped its own source text for the
+    // signature. That was a weaker duplicate of the trybuild test and brittle in
+    // a way that showed up on exactly one platform: Windows checks out CRLF, so
+    // matching a literal "(\n    cleared:" failed there and nowhere else.
+    // Removed rather than patched, because the coverage was already there.
 }
