@@ -197,8 +197,14 @@ coverage, not a random split. Both of those are easy to pass and mean nothing.
       43 designs imported. Conversion notes surfaced rather than discarded.
 - [ ] `integrase-sbol`: resolve sub-feature locations. Currently component-level roles only, and
       the import report says so on every affected file.
-- [ ] Split conformal calibration on Kosuri et al. 2013
-- [ ] The evaluation harness, including stratified coverage
+- [x] ~~Split conformal calibration machinery~~ **Done.** Validated on synthetic data: coverage
+      holds at 0.50/0.80/0.90/0.95, and under heavy-tailed noise, which is the distribution-free
+      claim actually being tested.
+- [ ] Fit it to Kosuri et al. 2013. **Data not yet sourced**; the PNAS accession was not in search
+      results and needs locating.
+- [x] ~~Evaluation harness with stratified coverage~~ **Done.** Demonstrated that marginal coverage
+      of 0.805 can hide strata running from 1.000 down to 0.520, which is the argument for the
+      Phase 1a gate being stratified.
 - [ ] `integrase-py`: the SDK backed by the real core
 - [ ] Identify a second independent dataset for out-of-distribution evaluation
 
