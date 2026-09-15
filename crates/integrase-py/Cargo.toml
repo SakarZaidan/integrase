@@ -1,0 +1,22 @@
+[package]
+name        = "integrase-py"
+description = "Python bindings for Integrase."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[lib]
+name       = "_integrase"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+integrase-core = { path = "../integrase-core", version = "0.0.0" }
+integrase-sim  = { path = "../integrase-sim",  version = "0.0.0" }
+integrase-sbol = { path = "../integrase-sbol", version = "0.0.0" }
+pyo3 = { version = "0.27", features = ["extension-module", "abi3-py311"] }
+
+[lints]
+workspace = true

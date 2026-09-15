@@ -24,6 +24,17 @@ setup-rust:
 setup-python:
     @command -v uv >/dev/null || { echo "uv not found: https://docs.astral.sh/uv/"; exit 1; }
     cd python && uv sync
+    just build-ext
+
+# Build the Rust extension into the Python environment.
+#
+# Not optional before running Python tests. The extension is a compiled
+# artifact, so a stale copy will happily run against old Rust code and report
+# green. That happened once: a fix to domain-verdict precedence passed in Rust
+# and failed in Python purely because the extension had not been rebuilt, which
+# wasted a debugging cycle on a non-bug.
+build-ext:
+    cd python && uv run maturin develop --uv
 
 # --- the gate --------------------------------------------------------------
 
@@ -39,12 +50,12 @@ fmt-check:
     cargo fmt --all -- --check
     cd python && uv run ruff format --check .
 
-lint:
+lint: build-ext
     cargo clippy --workspace --all-targets -- -D warnings
     cd python && uv run ruff check .
     cd python && uv run mypy --strict src
 
-test:
+test: build-ext
     cargo nextest run --workspace 2>/dev/null || cargo test --workspace
     cd python && uv run pytest -q
 
