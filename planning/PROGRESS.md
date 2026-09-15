@@ -292,3 +292,57 @@ NSF eligibility entirely).
 
 One item blocks Phase 1a in earnest rather than Phase 0: the ViennaRNA licensing
 question, since the RBS baseline needs RNA secondary structure prediction.
+
+---
+
+## 2026-09-15 (later still): education sandbox planned
+
+Owner requested a student-facing simulation sandbox: edit DNA and environment, see how a body is
+built up from small parts, understand how small changes cause traits and disease, and design
+medicine in a virtual environment. Written up as subplan 33.
+
+### What research changed about it
+
+The realistic ceiling is higher than I assumed. Karr et al. 2012 built the first whole-cell model of
+a complete organism (*M. genitalium*: 401 genes, 1,857 reactions, **28 separate submodels**), and
+whole-cell *E. coli* models now exist. The architectural finding matters more than the scale:
+**those models compose different simulation methods per subsystem** rather than using one engine.
+
+So the owner's instinct, semi-realistic and built from composed pieces, is not a compromise. It is
+what the state of the art does, and subplan 33 follows that pattern deliberately.
+
+### Three things pushed back on, with reasons
+
+**Eye colour cannot be taught the simple way, because the simple way is wrong.** It involves roughly
+16 genes, and the dominant factor (rs12913832) is not even inside a pigment gene: it is a regulatory
+variant controlling how much of a neighbouring gene is expressed. Two blue-eyed parents can have a
+brown-eyed child. It ships as the lesson in why biology resists simple rules, which the uncertainty
+machinery is uniquely able to teach. Sickle cell, cystic fibrosis and Huntington's are genuinely
+single small changes and carry full accuracy.
+
+**Students will not discover cures, and presenting it as discovery would be a harm.** A simulator
+contains only what was put in it. The better design is letting them experience why treatments fail:
+about 90% of drug candidates entering clinical trials never reach approval, and only 8.1% make it
+through all phases. Those numbers are the curriculum.
+
+**"Restrict to good ideas only" is not implementable.** Intent is not in the data, and the edit that
+disables a harmful gene is the same edit reversed. What works instead is curation: the sandbox
+contains only the genes and molecules we ship, the organism is fictional, and there is no export
+path toward physical synthesis at all. Deciding what exists is stronger than guessing at intent.
+
+### The architecture decision
+
+Composition and interfaces, not inheritance. A shared `CellState` with independent `Process`
+objects stepping it, generalising Karr's 28 submodels. `Process` is a `Protocol` rather than an
+abstract base class specifically so a student can write one without inheriting anything, which is
+the best exercise the sandbox offers.
+
+Cell type is data on a cell, not a subclass of it, for the same reason a feature's role is an
+ontology IRI rather than an enum in `integrase-core`. Biology does not sort into a clean tree.
+
+This is a deliberate departure from subplan 12, which argued the codebase is not object-oriented and
+should not be. That argument still holds for the professional tool. The sandbox is a different case,
+because a containment hierarchy is genuinely present in the domain being modelled.
+
+Python leads here rather than follows, which is the only part of the project where that is true.
+Students read and write the model.
