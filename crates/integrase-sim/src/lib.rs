@@ -16,8 +16,10 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 
 pub mod confidence;
+pub mod rbs;
 
 pub use confidence::{DomainReason, DomainVerdict, Interval, ModelCard, ModelId, Prediction};
+pub use rbs::{RbsError, RbsInput, RbsThermodynamicModel};
 
 use integrase_core::Design;
 
