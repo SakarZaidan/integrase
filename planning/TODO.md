@@ -192,7 +192,10 @@ coverage, not a random split. Both of those are easy to pass and mean nothing.
       `planning/decisions/0001`.
 - [x] ~~`integrase-sim`: the thermodynamic RBS model~~ **Done.** Three of five terms, omissions
       disclosed in the model card, reports `Uncalibrated` until the coverage gate is met.
-- [ ] `integrase-core`: motif and restriction-site search over the compressed index
+- [x] ~~`integrase-core`: motif and restriction-site search~~ **Done.** Both strands, IUPAC
+      ambiguity, property test asserting a sequence and its reverse complement agree.
+- [x] ~~SBOL export~~ **Done.** Round-trips, and `export_for_synthesis` takes `Cleared<Design>`
+      with a `trybuild` test proving the unscreened call does not compile.
 - [x] ~~`integrase-sbol`: import via `sbol-rs`~~ **Done.** 33/33 vendored pySBOL3 fixtures parse,
       43 designs imported. Conversion notes surfaced rather than discarded.
 - [ ] `integrase-sbol`: resolve sub-feature locations. Currently component-level roles only, and

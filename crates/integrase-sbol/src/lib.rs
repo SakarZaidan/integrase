@@ -23,8 +23,10 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 #![allow(clippy::module_name_repetitions)]
 
+pub mod export;
 pub mod import;
 
+pub use export::{VendorFormat, export_for_synthesis, write_sbol};
 pub use import::{ImportResult, from_document, from_turtle};
 
 /// Errors from SBOL import and export.

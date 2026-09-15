@@ -27,8 +27,8 @@ implementation has just started.
 
 | | |
 |---|---|
-| **Works today** | The workspace builds, the core sequence and design types exist, the confidence and screening types are in place, 21 Rust tests and 6 Python tests pass on Linux, macOS, and Windows. |
-| **Not built yet** | The biophysical models themselves. SBOL import/export. Circuit compilation. Rendering. Everything a user would actually run. |
+| **Works today** | SBOL 3 import and export, a thermodynamic RBS model that reports its own uncertainty, conformal calibration, motif and restriction-site search, and a Python SDK. Tests pass on Linux, macOS, and Windows. |
+| **Not built yet** | Calibration against real data (needs `R-005`). Circuit compilation. Rendering. The screening backend. |
 | **Version** | `0.0.0`. Nothing is published to crates.io or PyPI. |
 
 If you are looking for a tool to use today, this is not yet that. If you are

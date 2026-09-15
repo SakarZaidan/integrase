@@ -9,7 +9,8 @@ repository.workspace   = true
 authors.workspace      = true
 
 [dependencies]
-integrase-core = { path = "../integrase-core", version = "0.0.0" }
+integrase-core   = { path = "../integrase-core",   version = "0.0.0" }
+integrase-screen = { path = "../integrase-screen", version = "0.0.0" }
 sbol3     = "=1.0.0"
 sbol-rdf  = "=1.0.0"
 thiserror.workspace = true
@@ -17,6 +18,9 @@ thiserror.workspace = true
 [dev-dependencies]
 sbol-convert = "=1.0.0"
 sbol2        = "=1.0.0"
+# Proves the export gate at COMPILE time. Runtime tests cannot: they can only
+# show that screened designs export, never that unscreened ones cannot.
+trybuild     = "1"
 
 [lints]
 workspace = true

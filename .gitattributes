@@ -1,0 +1,29 @@
+# Normalise line endings.
+#
+# Without this, git on Windows checks files out with CRLF, and anything that
+# matches on source text breaks there and nowhere else. That is exactly what
+# happened: a test asserting a function signature contained "(\n    cleared:"
+# passed on Linux and macOS and failed on Windows only.
+#
+# The test was removed as redundant, but the underlying hazard applies to any
+# fixture, snapshot, or golden file, so it is fixed at the repository level
+# rather than per-case.
+
+*               text=auto eol=lf
+
+# Binary, never translated.
+*.png           binary
+*.jpg           binary
+*.pdf           binary
+*.xls           binary
+*.xlsx          binary
+*.safetensors   binary
+*.onnx          binary
+
+# Test fixtures are compared byte-for-byte in places, so their endings must not
+# depend on which machine checked them out.
+*.ttl           text eol=lf
+*.rdf           text eol=lf
+*.nt            text eol=lf
+*.jsonld        text eol=lf
+*.stderr        text eol=lf

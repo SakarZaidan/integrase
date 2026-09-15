@@ -1,0 +1,15 @@
+error[E0308]: mismatched types
+  --> tests/compile-fail/unscreened_export.rs:19:34
+   |
+19 |     let _ = export_for_synthesis(&design, VendorFormat::Fasta);
+   |             -------------------- ^^^^^^^ expected `&Cleared<Design>`, found `&Design`
+   |             |
+   |             arguments to this function are incorrect
+   |
+   = note: expected reference `&integrase_screen::Cleared<Design>`
+              found reference `&Design`
+note: function defined here
+  --> src/export.rs
+   |
+   | pub fn export_for_synthesis(
+   |        ^^^^^^^^^^^^^^^^^^^^
