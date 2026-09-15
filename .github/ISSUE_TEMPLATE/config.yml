@@ -1,0 +1,10 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/SakarZaidan/integrase/security/advisories/new
+    about: >
+      Report privately. Screening-bypass reports are handled differently from
+      standard coordinated disclosure; see SECURITY.md before reporting.
+  - name: Questions and discussion
+    url: https://github.com/SakarZaidan/integrase/discussions
+    about: For questions about how to use Integrase, or what it means.

@@ -1,0 +1,194 @@
+# Integrase CI.
+#
+# Designed in planning/subplans/18-cicd-and-release.md before any of this was
+# written, so it implements a decision rather than being assembled ad hoc.
+#
+# Two principles worth stating because they shape the layout:
+#   1. CI enforces what review cannot reliably catch. Formatting, coverage,
+#      wire compatibility and performance regressions are mechanical, and
+#      reviewers are unreliable at all four.
+#   2. CI depends on no third-party service. Contract tests use a vendored
+#      corpus, not live SynBioHub. CI that fails for reasons unrelated to the
+#      change teaches people to re-run until green.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ---------------------------------------------------------------- stage 1
+  # Fast feedback. Target under two minutes.
+  fast:
+    name: fast checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: python format and lint
+        working-directory: python
+        run: |
+          uv sync
+          uv run ruff format --check .
+          uv run ruff check .
+
+      - name: python types
+        working-directory: python
+        run: uv run mypy --strict src
+
+      # The brief's writing rules apply to every document in this repository,
+      # and a rule enforced only by good intentions decays.
+      - name: prose voice
+        run: ./tools/check-voice.sh
+
+      # A diagram that renders as an error block in the README is a visible
+      # failure, and "it looked right in my editor" is not verification.
+      - name: mermaid diagrams
+        run: ./tools/check-mermaid.sh
+
+  # ---------------------------------------------------------------- stage 2
+  test:
+    name: tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: rust tests
+        run: cargo nextest run --workspace
+
+      # Doctests are how documentation is stopped from rotting: an example that
+      # stops compiling fails the build. nextest does not run them.
+      - name: doctests
+        run: cargo test --doc --workspace
+
+      - name: python tests
+        working-directory: python
+        run: |
+          uv sync
+          uv run pytest -q
+
+  # ---------------------------------------------------------------- stage 2b
+  # The screening suite is its own required, non-skippable job.
+  #
+  # It is separated from `test` deliberately: this is the highest-consequence
+  # component in the system, a false negative here is the worst failure it can
+  # produce, and a required check that cannot be confused with "some test
+  # somewhere failed" is worth the extra job.
+  screening:
+    name: screening gateway (required)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: screening tests
+        run: cargo test -p integrase-screen -- --nocapture
+
+      # Guards the type-level gate itself. Without this, a refactor could make
+      # Cleared constructible outside the gateway while every runtime test
+      # still passed.
+      - name: the export gate still refuses unscreened designs
+        run: |
+          set -euo pipefail
+          if grep -rn 'pub fn cleared\|pub const fn cleared' crates/integrase-screen/src/ \
+             | grep -v '#\[cfg(test)\]'; then
+            echo "::error::a public constructor for Cleared<T> appeared outside cfg(test)."
+            echo "This breaks R-0.2. See CONTRIBUTING.md."
+            exit 1
+          fi
+          echo "no public Cleared constructor: gate intact"
+
+  # ---------------------------------------------------------------- stage 3
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --release
+      - name: cli runs
+        run: ./target/release/integrase scope
+
+  docs:
+    name: docs build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  # ---------------------------------------------------------------- stage 4
+  msrv:
+    name: MSRV 1.93
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Develop on stable, verify the floor here. Pinning the toolchain file to
+      # the MSRV would make every contributor build with the oldest compiler we
+      # support, which is backwards.
+      - uses: dtolnay/rust-toolchain@1.93
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace
+
+  commits:
+    name: commit messages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: conventional commits
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          fail=0
+          while read -r sha; do
+            subject=$(git log -1 --format=%s "$sha")
+            if ! echo "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9,-]+\))?!?: .+'; then
+              echo "::error::not a conventional commit: $subject"
+              fail=1
+            fi
+          done < <(git rev-list "$base".."$head")
+          [ "$fail" -eq 0 ] || { echo "See CONTRIBUTING.md."; exit 1; }
+          echo "all commit messages conform"

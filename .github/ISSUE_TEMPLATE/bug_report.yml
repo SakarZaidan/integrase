@@ -1,0 +1,54 @@
+name: Bug report
+description: Something behaves differently from what the docs say
+labels: ["type:bug", "needs:triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not report security vulnerabilities here.** See
+        [SECURITY.md](../../SECURITY.md), and note that screening-bypass reports
+        are handled differently from standard disclosure.
+  - type: dropdown
+    id: subsystem
+    attributes:
+      label: Which part
+      options:
+        - integrase-core (sequences, designs, indexing)
+        - integrase-sbol (SBOL import/export)
+        - integrase-sim (predictions, uncertainty)
+        - integrase-screen (screening gateway)
+        - integrase-viz (rendering)
+        - integrase-logic (circuit compilation)
+        - integrase-vdr (design records)
+        - Python SDK
+        - CLI
+        - Docs
+        - Not sure
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: Quote the documentation if it says something different from what happened.
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: >
+        The smallest input that shows the problem. If it involves a sequence,
+        include it if you can share it, or describe its shape (length, features,
+        organism) if you cannot.
+      render: shell
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of `integrase --version`, or the commit SHA"
+    validations: { required: true }

@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose something the tool should do
+labels: ["type:feature", "needs:triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: >
+        What are you trying to do that you cannot do now? Describe the situation,
+        not the solution. We are more likely to build something useful if we
+        understand the problem than if we implement a proposed API.
+    validations: { required: true }
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Who hits this, and how often
+      description: >
+        A concrete scenario beats an abstract capability. "I am an iGEM team
+        doing X and Y takes an hour" is far more actionable than "support Y".
+    validations: { required: true }
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do instead today
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      description: >
+        Integrase operates on sequence data. It does not edit genomes, interact
+        with living organisms, or order DNA.
+      options:
+        - label: This request is within that scope
+          required: true
