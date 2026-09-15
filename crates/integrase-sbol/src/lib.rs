@@ -23,6 +23,10 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 #![allow(clippy::module_name_repetitions)]
 
+pub mod import;
+
+pub use import::{ImportResult, from_document, from_turtle};
+
 /// Errors from SBOL import and export.
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
@@ -38,6 +42,16 @@ pub enum SbolError {
     UnresolvedTerm {
         /// The IRI in question.
         iri: String,
+    },
+    /// The document exceeds the size this importer will parse.
+    ///
+    /// Refused before parsing rather than after allocation.
+    #[error("document is {len} bytes; this importer refuses anything over {max}")]
+    TooLarge {
+        /// Size supplied.
+        len: usize,
+        /// The limit.
+        max: usize,
     },
 }
 

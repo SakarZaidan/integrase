@@ -170,6 +170,17 @@ phase placement is an open question rather than automatically "later".
 
 ---
 
+## Upstream contributions owed (subplan 23)
+
+- [ ] **Report RUSTSEC-2026-0194 and -0195 to Oxigraph.** `oxrdfxml 0.2.4` pins `quick-xml ^0.37`;
+      the advisories require >= 0.41.0. This is the actual fix location, and it is unfixable
+      downstream. Remove the `deny.toml` exceptions when a fixed `oxrdfxml` ships.
+- [ ] Note the same to `sbol-rs`, since they inherit it through `sbol-rdf`.
+- [ ] Open the `sbol-py` PyPI conversation
+- [ ] File the `urn_design.ttl` round-trip observation
+
+---
+
 ## Phase 1a: the honest predictor
 
 The gate that can fail and block the phase: an 80% interval contains the truth 80% +/- 5% on
@@ -182,7 +193,10 @@ coverage, not a random split. Both of those are easy to pass and mean nothing.
 - [x] ~~`integrase-sim`: the thermodynamic RBS model~~ **Done.** Three of five terms, omissions
       disclosed in the model card, reports `Uncalibrated` until the coverage gate is met.
 - [ ] `integrase-core`: motif and restriction-site search over the compressed index
-- [ ] `integrase-sbol`: import via `sbol-rs`, with conversion reports surfaced
+- [x] ~~`integrase-sbol`: import via `sbol-rs`~~ **Done.** 33/33 vendored pySBOL3 fixtures parse,
+      43 designs imported. Conversion notes surfaced rather than discarded.
+- [ ] `integrase-sbol`: resolve sub-feature locations. Currently component-level roles only, and
+      the import report says so on every affected file.
 - [ ] Split conformal calibration on Kosuri et al. 2013
 - [ ] The evaluation harness, including stratified coverage
 - [ ] `integrase-py`: the SDK backed by the real core
