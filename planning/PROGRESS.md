@@ -200,3 +200,95 @@ reporting a figure it cannot defend.
 ### Next
 
 Owner decisions on R-001 (organisation) and R-004 (institutional route). Then Phase 0.
+
+---
+
+## 2026-09-15 (later): Phase 0 complete
+
+Phase 0 asked one question: **can someone contribute to this?** The answer is
+verifiable rather than asserted. A fresh clone runs `just setup && just check`
+and gets a green result, and CI passes on every platform.
+
+### Definition of done, checked
+
+| Criterion | Status |
+|---|---|
+| Fresh clone runs `just setup && just check` | Verified locally |
+| CI passes on a real PR | 11 of 11 checks, three platforms, first run |
+| Contributor can find the rules | `CONTRIBUTING.md` front-loads both tier-0 rules |
+| Repository configured deliberately | 11 required checks, admins bound, linear history, squash-only |
+
+### What landed
+
+**Scaffold (PR #14).** Nine crates. The two tier-0 guarantees are structural
+rather than aspirational: `Prediction<T>` has private fields, no `Deref`, and no
+`into_value()`, so getting the number out means naming the field. `Cleared<T>`
+has no public constructor, so the export gate is a compile-time property.
+
+21 Rust tests and 6 Python tests. The property tests were mutation-checked in
+both directions: injecting a revcomp that does not complement, and an off-by-one
+in reverse-strand slicing, both fail the suite.
+
+**Governance and CI (PR #15).** `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` with the
+dual-use clause, `SECURITY.md` with the disclosure departure stated up front,
+`CODEOWNERS`, issue and PR templates, and 11 CI jobs.
+
+The screening job guards the type-level gate itself, which runtime tests cannot:
+it fails the build if a public constructor for `Cleared<T>` appears outside
+`cfg(test)`.
+
+**Six skills (PR #16).** Under `.claude/skills/`, available to any future session.
+
+**README and docs (PR #17).** `docs/limitations.md` and
+`docs/concepts/uncertainty.md` ship now because they are what makes a first
+release honest.
+
+### Three decisions the work forced
+
+1. **`rust-toolchain.toml` pins stable, not the 1.93 MSRV.** Pinning the floor
+   would make every contributor build with the oldest supported compiler. The
+   floor is checked mechanically in CI instead.
+2. **An unrecognised `DomainVerdict` renders as the *least* confident encoding.**
+   The enum is `#[non_exhaustive]`, so a future variant must land somewhere.
+   Defaulting to solid fill would draw an unknown state as validated, which is
+   the worst rendering error this system could make.
+3. **macOS and Windows tests are required, not advisory.** Leaving them
+   non-blocking would let them rot, which is the advisory-check failure mode
+   subplan 18 criticises.
+
+### Two lint rules overridden with reasons rather than silenced
+
+Ruff's `N818` wants `ScreeningRefused` renamed to end in `Error`. Subplan 12
+holds that a refusal is not an error but the system working correctly, and filing
+it alongside I/O failures would lose the distinction that matters in the UI.
+Suppressed at the point of exception with the reasoning attached.
+
+`DomainReason` derives `PartialEq` without `Eq` because two variants carry `f64`
+and NaN is not reflexive.
+
+### Things the tooling caught in my own work
+
+Worth recording, because it is the argument for having built the checkers:
+
+- The voice checker failed my own prose three times, most recently on four em
+  dashes in `uncertainty.md` written minutes earlier.
+- Two false positives in the checker itself surfaced while writing the skills:
+  Rust macros (`assert!`, `panic!`) tripping the exclamation rule, and documents
+  that teach the rules by quoting them. Both fixed and verified in both
+  directions.
+- A speculative `cleared_for_test` constructor was written, found unused, and
+  removed. Unused API added "for later" is exactly what the `ai-code-review`
+  skill exists to catch.
+
+### Next
+
+Phase 1a: the honest predictor. Its gate is a real criterion that can fail and
+block the phase, an 80% interval containing the truth 80% plus or minus 5% on
+held-out data, stratified by expression decile, with component-wise splits.
+
+Two owner decisions remain open and neither blocks engineering:
+**R-001** (GitHub organisation) and **R-004** (institutional route, which gates
+NSF eligibility entirely).
+
+One item blocks Phase 1a in earnest rather than Phase 0: the ViennaRNA licensing
+question, since the RBS baseline needs RNA secondary structure prediction.
