@@ -436,6 +436,7 @@ version = "0.0.0"
 dependencies = [
  "integrase-core",
  "serde",
+ "tempfile",
  "thiserror",
 ]
 

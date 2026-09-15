@@ -17,6 +17,42 @@ Last reviewed: 2026-09-14
 
 ## OPEN
 
+### R-005: Calibration data, and a second independent dataset
+
+**Status:** OPEN, raised 2026-09-15
+**Blocks:** the Phase 1a gate. Until this resolves, models report `Uncalibrated` and offer no
+intervals, which is honest but is not the product.
+
+**What is needed.** Two things, and the second is the harder one.
+
+**First, the primary dataset.** Kosuri et al. 2013 (PNAS), 12,653 promoter and RBS combinations in
+*E. coli*. Located precisely at [PMC3752251](https://pmc.ncbi.nlm.nih.gov/articles/PMC3752251/),
+supplementary Datasets S1, S2 and S3.
+
+I could not retrieve it automatically: PMC serves an interstitial page rather than the file for
+scripted requests, and working around an access control the host deliberately placed there is not
+something this project does. It needs downloading in a browser. `docs/calibration-data.md` has the
+procedure and the expected format.
+
+There is also an unresolved licensing question. The article is copyright the National Academy of
+Sciences, and free to read is not free to redistribute. The data is therefore gitignored and loaded
+from a local path rather than vendored. **If we ever want to distribute a derived calibration set,
+the terms need establishing first.**
+
+**Second, an independent dataset for out-of-distribution evaluation.** This is the one that decides
+how large a claim Integrase can make.
+
+A held-out split of one library measures interpolation. The question a user has is whether the
+interval holds for their sequence, from their library, in their conditions. Calibration on a single
+library can look excellent and mean very little, because the calibration set shares the training
+set's biases.
+
+**What happens once resolved.** The Phase 1a gate becomes runnable: 80% coverage within 5 points on
+held-out data, stratified by expression decile, with component-wise splits. With only the first
+dataset, the honest outcome is in-distribution calibration only, stated in the `ModelCard`.
+
+---
+
 ### R-004: Decide the institutional route
 
 **Status:** OPEN, raised 2026-09-15

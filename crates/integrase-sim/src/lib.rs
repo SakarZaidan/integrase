@@ -17,6 +17,7 @@
 
 pub mod calibration;
 pub mod confidence;
+pub mod dataset;
 pub mod rbs;
 
 pub use calibration::{
@@ -24,6 +25,7 @@ pub use calibration::{
     evaluate_coverage,
 };
 pub use confidence::{DomainReason, DomainVerdict, Interval, ModelCard, ModelId, Prediction};
+pub use dataset::{DatasetError, MeasuredConstruct, load_delimited, split_by_component};
 pub use rbs::{RbsError, RbsInput, RbsThermodynamicModel};
 
 use integrase_core::Design;
