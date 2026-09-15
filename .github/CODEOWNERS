@@ -1,0 +1,23 @@
+# Ownership by path. Established now, with one contributor, so the pattern is
+# right from the start and adding a maintainer is a one-line change rather than
+# a restructure.
+
+*                          @SakarZaidan
+
+# The highest-consequence component in the system. Screening changes require
+# explicit human sign-off and are never auto-merged, regardless of how clean the
+# diff looks or whether a bot opened it.
+/crates/integrase-screen/  @SakarZaidan
+
+# The confidence layer. A change here can make a prediction look more certain
+# than it is, which is the other failure this project cannot afford.
+/crates/integrase-sim/     @SakarZaidan
+
+# Wire contracts. Breaking these breaks users silently and at a distance.
+/proto/                    @SakarZaidan
+
+# Decisions and their reasoning.
+/planning/                 @SakarZaidan
+
+# CI is the enforcement mechanism for everything else.
+/.github/workflows/        @SakarZaidan

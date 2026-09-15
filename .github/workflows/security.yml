@@ -1,0 +1,39 @@
+# Dependency and supply-chain scanning.
+#
+# Three language ecosystems means three vulnerability databases (subplan 10).
+# Runs on a schedule as well as on PRs, because a dependency becomes vulnerable
+# on the advisory's timetable, not on ours.
+
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+
+  pip-audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - working-directory: python
+        run: |
+          uv sync
+          uv run pip-audit
