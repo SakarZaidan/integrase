@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Fast local guard. Enable with `just setup`, which sets core.hooksPath.
+#
+# Exists because formatting drift has reached CI more than once: an edit made
+# with a script, committed without re-running `cargo fmt`, and a red `fast
+# checks` job seventeen seconds later. The whole check suite is too slow for
+# every commit; these three are not.
+
+set -uo pipefail
+fail=0
+
+if ! cargo fmt --all -- --check >/dev/null 2>&1; then
+    echo "pre-commit: rustfmt would change files. Run 'cargo fmt --all'." >&2
+    fail=1
+fi
+
+if [ -x ./tools/check-voice.sh ] && ! ./tools/check-voice.sh >/dev/null 2>&1; then
+    echo "pre-commit: prose voice check failed. Run './tools/check-voice.sh'." >&2
+    fail=1
+fi
+
+if command -v uv >/dev/null 2>&1 && [ -d python ]; then
+    if ! (cd python && uv run ruff format --check . >/dev/null 2>&1); then
+        echo "pre-commit: ruff would reformat Python. Run 'just fmt'." >&2
+        fail=1
+    fi
+fi
+
+[ "$fail" -eq 0 ] || echo "pre-commit: commit blocked. Use --no-verify to override deliberately." >&2
+exit "$fail"

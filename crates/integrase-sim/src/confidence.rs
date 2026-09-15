@@ -108,6 +108,11 @@ impl fmt::Display for DomainReason {
     /// surfaces would see the same verdict worded differently, which invites
     /// the reasonable conclusion that they mean different things.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // No wildcard arm, deliberately. `non_exhaustive` binds other crates,
+        // not this one, so this match is exhaustive here and the compiler will
+        // reject a new variant that has no rendering. A domain reason a user
+        // cannot read is a bug, and it should fail the build rather than print
+        // a shrug.
         match self {
             Self::HostMismatch { got, expected } => {
                 write!(f, "host {got} differs from the fitted host {expected}")
@@ -140,11 +145,6 @@ impl fmt::Display for DomainReason {
                     "embedding distance {distance:.3} from the calibration set"
                 )
             }
-            // No wildcard arm, deliberately. `non_exhaustive` binds other
-            // crates, not this one, so this match is exhaustive here and the
-            // compiler will flag a new variant that has no rendering. That is
-            // the behaviour we want: a domain reason a user cannot read is a
-            // bug, and it should fail the build rather than print a shrug.
         }
     }
 }
