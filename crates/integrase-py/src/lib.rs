@@ -124,34 +124,13 @@ impl PyDomainVerdict {
     }
 }
 
+/// Renders a domain reason for Python.
+///
+/// Defers to `DomainReason`'s `Display`, which is the single definition. An
+/// earlier version duplicated the wording here, which would have drifted from
+/// the CLI's rendering and shown users the same verdict worded two ways.
 fn describe_reason(r: &DomainReason) -> String {
-    match r {
-        DomainReason::HostMismatch { got, expected } => {
-            format!("host {got} differs from the fitted host {expected}")
-        }
-        DomainReason::NonCanonicalStartCodon { codon } => {
-            format!("non-canonical start codon {codon}")
-        }
-        DomainReason::SpacerOutOfRange { length } => {
-            format!("spacer length {length} outside range")
-        }
-        DomainReason::LengthOutOfRange { length } => format!("length {length} outside range"),
-        DomainReason::StrongSecondaryStructure {
-            free_energy_kcal_per_mol,
-        } => {
-            format!("strong secondary structure, {free_energy_kcal_per_mol:.2} kcal/mol")
-        }
-        DomainReason::PossibleSecondaryStructure { stem_fraction } => {
-            format!(
-                "possible secondary structure, {:.0}% of the sequence in a stem",
-                stem_fraction * 100.0
-            )
-        }
-        DomainReason::EmbeddingDistance { distance } => {
-            format!("embedding distance {distance:.3} from the calibration set")
-        }
-        _ => "unspecified".to_owned(),
-    }
+    r.to_string()
 }
 
 impl From<&DomainVerdict> for PyDomainVerdict {

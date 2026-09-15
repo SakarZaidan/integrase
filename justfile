@@ -13,8 +13,12 @@ default:
 # --- setup -----------------------------------------------------------------
 
 # Install everything needed to build and test. Idempotent.
-setup: setup-rust setup-python
+setup: setup-hooks setup-rust setup-python
     @echo "setup complete. run 'just check'."
+
+# Point git at the repository's hooks. Idempotent.
+setup-hooks:
+    git config core.hooksPath .githooks
 
 setup-rust:
     rustup component add rustfmt clippy

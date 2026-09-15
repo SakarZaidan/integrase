@@ -417,6 +417,10 @@ dependencies = [
  "anyhow",
  "clap",
  "integrase",
+ "integrase-core",
+ "integrase-sbol",
+ "integrase-screen",
+ "integrase-sim",
 ]
 
 [[package]]

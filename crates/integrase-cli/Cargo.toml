@@ -13,7 +13,11 @@ name = "integrase"
 path = "src/main.rs"
 
 [dependencies]
-integrase = { path = "../integrase", version = "0.0.0" }
+integrase        = { path = "../integrase",        version = "0.0.0" }
+integrase-sbol   = { path = "../integrase-sbol",   version = "0.0.0" }
+integrase-sim    = { path = "../integrase-sim",    version = "0.0.0" }
+integrase-screen = { path = "../integrase-screen", version = "0.0.0" }
+integrase-core   = { path = "../integrase-core",   version = "0.0.0" }
 clap      = { version = "4", features = ["derive"] }
 anyhow    = "1"
 
