@@ -33,10 +33,38 @@ grey() { printf '\033[90m%s\033[0m\n' "$1"; }
 PRUNE=( --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=target
         --exclude=check-voice.sh --exclude=*.lock --exclude=*.svg )
 
+# Build the list of files to scan, honouring the opt-out marker.
+#
+# A document that *teaches* these rules has to quote the patterns it forbids.
+# `writing-voice` contains every banned word by definition, and the review skills
+# show bad prose next to its corrected form. Those files declare the marker
+# below, which is deliberate and greppable rather than a silent exclusion.
+OPTOUT='voice-check: teaches-by-example'
+collect() {
+  grep -rlIZ --include='*.md' "${PRUNE[@]}" '' "${TARGETS[@]}" 2>/dev/null \
+    | while IFS= read -r -d '' f; do
+        grep -q "$OPTOUT" "$f" || printf '%s\0' "$f"
+      done
+}
+
+# Prose only: drop fenced code blocks so that Rust macros (assert!, panic!) and
+# shell snippets do not trip prose rules. Keeps line numbers accurate.
+prose() {
+  awk 'BEGIN{inb=0}
+       /^[[:space:]]*```/ {inb=!inb; print ""; next}
+       {print (inb ? "" : $0)}' "$1"
+}
+
 report() { # name, pattern, explanation, [extra-filter]
   local name="$1" pat="$2" why="$3" filter="${4:-cat}"
-  local hits
-  hits=$(grep -rnEIi "${PRUNE[@]}" "$pat" "${TARGETS[@]}" 2>/dev/null | eval "$filter") || true
+  local hits=""
+  local f
+  while IFS= read -r -d '' f; do
+    local found
+    found=$(prose "$f" | grep -nEi "$pat" 2>/dev/null | eval "$filter" | sed "s|^|$f:|") || true
+    [ -n "$found" ] && hits="${hits}${found}"$'\n'
+  done < <(collect)
+  hits=$(printf '%s' "$hits" | sed '/^$/d')
   if [ -n "$hits" ]; then
     red "FAIL: $name"
     grey "      $why"
@@ -82,7 +110,7 @@ report "exclamation point" '!' \
 
 # 6. Reflexive rule-of-three adjective cadence. Advisory: three parallel
 #    adjectives are sometimes genuinely clearest. Flagged for a look, not failed.
-trio=$(grep -rnEI "${PRUNE[@]}" \
+trio=$(collect | xargs -0 -r grep -nEI \
   '\b(fast|simple|clean|modern|powerful|flexible|scalable|reliable|secure|efficient), (fast|simple|clean|modern|powerful|flexible|scalable|reliable|secure|efficient), and (fast|simple|clean|modern|powerful|flexible|scalable|reliable|secure|efficient)\b' \
   "${TARGETS[@]}" 2>/dev/null) || true
 if [ -n "$trio" ]; then
