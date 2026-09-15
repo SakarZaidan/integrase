@@ -29,7 +29,9 @@ build-backend = "maturin"
 manifest-path    = "../crates/integrase-py/Cargo.toml"
 module-name      = "integrase._integrase"
 python-source    = "src"
-features         = ["pyo3/extension-module"]
+# Enables the local feature, which in turn enables pyo3/extension-module.
+# See crates/integrase-py/Cargo.toml for why it is not a default.
+features         = ["extension-module"]
 
 [tool.ruff]
 line-length    = 100

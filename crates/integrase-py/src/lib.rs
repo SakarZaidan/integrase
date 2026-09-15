@@ -16,6 +16,7 @@
 //! seconds once.
 
 #![allow(clippy::needless_pass_by_value)] // PyO3 signatures take owned values.
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 
 use integrase_sim::{
     DomainReason, DomainVerdict, Interval, Prediction, RbsInput, RbsThermodynamicModel,
@@ -363,4 +364,110 @@ fn _integrase(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(scope, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// These tests exist partly for their own sake and partly as a **link
+    /// canary**.
+    ///
+    /// This crate previously had no Rust tests, so nothing built a binary that
+    /// had to link against libpython, and `pyo3/extension-module` being a
+    /// default feature went unnoticed locally. Linux tolerates the undefined
+    /// symbols; macOS does not, and CI failed there with a wall of
+    /// `_PyExc_AttributeError, referenced from:`.
+    ///
+    /// Any test in this module forces the link. Deleting them all would let the
+    /// same misconfiguration return silently.
+    #[test]
+    fn this_crate_links_against_libpython_in_test_builds() {
+        // The assertion is incidental. Building this at all is the test.
+        assert!(!scope().is_empty());
+    }
+
+    #[test]
+    fn a_host_mismatch_reason_names_both_organisms() {
+        let r = DomainReason::HostMismatch {
+            got: "Paracoccus denitrificans".into(),
+            expected: "Escherichia coli".into(),
+        };
+        let s = describe_reason(&r);
+        assert!(
+            s.contains("Paracoccus denitrificans"),
+            "must name what was given: {s}"
+        );
+        assert!(
+            s.contains("Escherichia coli"),
+            "must name what was expected: {s}"
+        );
+    }
+
+    #[test]
+    fn a_structure_reason_reports_a_percentage_not_a_raw_fraction() {
+        let s = describe_reason(&DomainReason::PossibleSecondaryStructure {
+            stem_fraction: 0.62,
+        });
+        assert!(
+            s.contains("62%"),
+            "a user reads percentages, not fractions: {s}"
+        );
+    }
+
+    /// The two structure reasons must not be confused: one carries a computed
+    /// free energy, the other carries only a heuristic fraction.
+    #[test]
+    fn the_two_structure_reasons_describe_themselves_differently() {
+        let computed = describe_reason(&DomainReason::StrongSecondaryStructure {
+            free_energy_kcal_per_mol: -12.5,
+        });
+        let heuristic = describe_reason(&DomainReason::PossibleSecondaryStructure {
+            stem_fraction: 0.62,
+        });
+        assert!(
+            computed.contains("kcal/mol"),
+            "the computed one reports energy: {computed}"
+        );
+        assert!(
+            !heuristic.contains("kcal/mol"),
+            "the heuristic one must not imply an energy it did not compute: {heuristic}"
+        );
+    }
+
+    #[test]
+    fn the_scope_statement_names_what_the_tool_does_not_do() {
+        let s = scope();
+        for phrase in [
+            "does not edit genomes",
+            "not measurements",
+            "experimental validation",
+        ] {
+            assert!(s.contains(phrase), "scope must mention {phrase:?}");
+        }
+    }
+
+    #[test]
+    fn an_uncalibrated_prediction_converts_with_no_interval() {
+        use integrase_sim::ModelId;
+        let p = Prediction::without_interval(
+            42.0_f64,
+            ModelId("test-model".into()),
+            DomainVerdict::OutOfDistribution {
+                reason: DomainReason::HostMismatch {
+                    got: "other".into(),
+                    expected: "E. coli".into(),
+                },
+            },
+        );
+        let py = PyPrediction::from(&p);
+        assert!(
+            py.interval.is_none(),
+            "no interval must survive the conversion"
+        );
+        assert_eq!(
+            py.domain.kind, "out_of_distribution",
+            "the verdict must survive it too"
+        );
+    }
 }
