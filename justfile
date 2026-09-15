@@ -39,7 +39,12 @@ build-ext:
 # --- the gate --------------------------------------------------------------
 
 # Everything CI runs. If this passes, CI should pass.
-check: fmt-check lint test docs-check voice diagrams
+#
+# `advisories` is in here rather than only in `just audit` because a dependency
+# was once added with two known vulnerabilities and CI caught what the local
+# loop should have. It needs network; that is the price of the local gate
+# actually mirroring CI.
+check: fmt-check lint test docs-check voice diagrams advisories
     @echo "all checks passed"
 
 fmt:
@@ -79,8 +84,13 @@ msrv:
     rustup toolchain install 1.93 --profile minimal
     cargo +1.93 check --workspace
 
-audit:
-    cargo deny check
+# Known vulnerabilities only. Fast, and the one that must run before adopting a
+# dependency rather than after.
+advisories:
+    cargo deny check advisories
+
+audit: advisories
+    cargo deny check licenses bans sources
     cd python && uv run pip-audit
 
 bench:

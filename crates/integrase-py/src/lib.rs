@@ -24,7 +24,7 @@ use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
 
 /// An inclusive interval around a predicted value.
-#[pyclass(name = "Interval", frozen, get_all)]
+#[pyclass(name = "Interval", frozen, get_all, skip_from_py_object)]
 #[derive(Debug, Clone)]
 pub struct PyInterval {
     /// Lower bound.
@@ -67,7 +67,7 @@ impl From<Interval> for PyInterval {
 /// out-of-distribution input is exactly where that fails. The interval answers
 /// "given this input is like my calibration data, how wrong am I likely to be".
 /// This answers "is it".
-#[pyclass(name = "DomainVerdict", frozen)]
+#[pyclass(name = "DomainVerdict", frozen, skip_from_py_object)]
 #[derive(Debug, Clone)]
 pub struct PyDomainVerdict {
     kind: String,
@@ -186,7 +186,7 @@ impl From<&DomainVerdict> for PyDomainVerdict {
 }
 
 /// A predicted quantity together with everything needed to judge it.
-#[pyclass(name = "Prediction", frozen)]
+#[pyclass(name = "Prediction", frozen, skip_from_py_object)]
 #[derive(Debug, Clone)]
 pub struct PyPrediction {
     value: f64,
