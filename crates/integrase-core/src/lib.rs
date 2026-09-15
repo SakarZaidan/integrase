@@ -18,10 +18,14 @@
 
 pub mod design;
 pub mod error;
+pub mod index;
 pub mod provenance;
 pub mod seq;
 
 pub use design::{Design, DesignId, Feature, FeatureId, Location, OntologyTerm, Strand};
 pub use error::CoreError;
+pub use index::{
+    COMMON_ENZYMES, Match, RestrictionEnzyme, SiteHit, find_pattern, find_restriction_sites,
+};
 pub use provenance::Provenance;
 pub use seq::{Alphabet, Sequence, SequenceView};
