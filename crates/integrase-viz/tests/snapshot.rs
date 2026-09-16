@@ -418,3 +418,178 @@ fn strand_changes_direction_not_position() {
     };
     assert_ne!(d(Strand::Forward), d(Strand::Reverse));
 }
+
+// --- row packing -------------------------------------------------------------
+
+/// A design where a component-level role spans everything its parts occupy.
+///
+/// This is the ordinary shape of an SBOL file, not a pathological case: a
+/// component carries its own roles and its sub-features carry theirs.
+fn nested() -> Design {
+    let mut d = fixture();
+    d.features.push(Feature {
+        id: FeatureId("whole".into()),
+        location: Location {
+            start: 0,
+            end: 400,
+            strand: Strand::Forward,
+        },
+        role: OntologyTerm("https://identifiers.org/SO:0000804".into()),
+        name: Some("engineered region".into()),
+        children: Vec::new(),
+    });
+    d
+}
+
+/// Counts the glyphs on each row of the rendered markup.
+///
+/// The renderer wraps each row in a `<g data-row="N">`, so the layout is read
+/// back from the structure rather than reconstructed from coordinates. Glyph
+/// shapes put their first coordinate in different places, so a coordinate-based
+/// reading disagreed with itself: a rect reports its top edge while a promoter
+/// path reports its centre line.
+fn row_counts(svg: &str) -> std::collections::BTreeMap<usize, usize> {
+    let mut counts = std::collections::BTreeMap::new();
+    let mut current = None;
+    for line in svg.lines() {
+        let t = line.trim_start();
+        if let Some(rest) = t.strip_prefix(r#"<g class="row" data-row=""#) {
+            let n: usize = rest
+                .split('"')
+                .next()
+                .and_then(|d| d.parse().ok())
+                .expect("row index");
+            current = Some(n);
+            counts.entry(n).or_insert(0);
+        } else if t == "</g>" {
+            current = None;
+        } else if t.starts_with("<g>") {
+            *counts
+                .get_mut(&current.expect("glyph outside a row"))
+                .expect("row seen") += 1;
+        }
+    }
+    counts
+}
+
+/// A feature containing others must not be drawn over them.
+///
+/// Before row packing, the whole-construct role rendered as a box across every
+/// part inside it, and the parts were unreadable underneath.
+#[test]
+fn a_containing_feature_goes_to_its_own_row() {
+    let counts = row_counts(&render_svg(
+        &nested(),
+        &DomainVerdict::Uncalibrated,
+        SvgOptions::default(),
+    ));
+    assert!(counts.len() > 1, "everything landed on one row: {counts:?}");
+}
+
+/// The parts stay together on the backbone.
+///
+/// Placing features in sequence order produces a correct packing that reads
+/// wrongly: the container claims the second row before most parts are placed,
+/// and the parts then scatter across the rows above and below it. Shortest
+/// first keeps them in a line, which is the whole reason for the ordering.
+#[test]
+fn the_parts_share_the_backbone_row() {
+    let counts = row_counts(&render_svg(
+        &nested(),
+        &DomainVerdict::Uncalibrated,
+        SvgOptions::default(),
+    ));
+    assert_eq!(counts.len(), 2, "expected exactly two rows: {counts:?}");
+    // Six parts on the backbone, the container alone above them.
+    assert_eq!(counts.get(&0).copied(), Some(6), "{counts:?}");
+    assert_eq!(counts.get(&1).copied(), Some(1), "{counts:?}");
+}
+
+/// Non-overlapping features share a row, so a simple design stays one row tall.
+#[test]
+fn a_design_without_overlap_uses_one_row() {
+    let svg = render_svg(
+        &fixture(),
+        &DomainVerdict::Uncalibrated,
+        SvgOptions::default(),
+    );
+    let counts = row_counts(&svg);
+    assert_eq!(counts.len(), 1, "unnecessary rows: {counts:?}");
+    assert!(
+        svg.contains(r#"height="100""#),
+        "canvas grew without reason"
+    );
+}
+
+/// The canvas grows to hold the rows, and nothing is drawn outside it.
+///
+/// A glyph clipped by the viewBox is invisible in every viewer and reads as a
+/// missing feature rather than as a layout bug.
+#[test]
+fn the_canvas_holds_every_row() {
+    let mut d = fixture();
+    // Five features over the same span force five rows.
+    d.features = (0..5)
+        .map(|i| Feature {
+            id: FeatureId(format!("f{i}")),
+            location: Location {
+                start: 100,
+                end: 300,
+                strand: Strand::Forward,
+            },
+            role: OntologyTerm::cds(),
+            name: None,
+            children: Vec::new(),
+        })
+        .collect();
+
+    let svg = render_svg(&d, &DomainVerdict::Uncalibrated, SvgOptions::default());
+    let counts = row_counts(&svg);
+    assert_eq!(
+        counts.len(),
+        5,
+        "overlapping features shared a row: {counts:?}"
+    );
+
+    let height: f64 = svg
+        .split(r#"viewBox="0 0 800 "#)
+        .nth(1)
+        .and_then(|r| r.split('"').next())
+        .and_then(|n| n.parse().ok())
+        .expect("viewBox height");
+
+    for line in svg.lines().filter(|l| l.trim_start().starts_with("<g>")) {
+        let nums: Vec<f64> = line
+            .split([' ', '"', 'L', 'M', 'A', 'Z'])
+            .filter_map(|t| t.parse::<f64>().ok())
+            .collect();
+        for y in nums.iter().skip(1).step_by(2) {
+            assert!(
+                *y >= 0.0 && *y <= height,
+                "y {y} is outside a canvas of {height}"
+            );
+        }
+    }
+}
+
+/// Row assignment must not depend on the order features arrive in.
+#[test]
+fn row_assignment_ignores_input_order() {
+    let a = nested();
+    let mut b = nested();
+    b.features.reverse();
+    assert_eq!(
+        render_svg(&a, &DomainVerdict::Uncalibrated, SvgOptions::default()),
+        render_svg(&b, &DomainVerdict::Uncalibrated, SvgOptions::default())
+    );
+}
+
+#[test]
+fn nested_design_matches_its_golden() {
+    let svg = render_svg(
+        &nested(),
+        &DomainVerdict::InDistribution { similarity: 0.9 },
+        SvgOptions::default(),
+    );
+    assert_golden("nested", &svg);
+}

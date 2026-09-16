@@ -26,7 +26,12 @@ pub enum Glyph {
     Terminator,
     /// Circle. Origin of replication.
     OriginOfReplication,
-    /// Plain box. A recognised feature with no specific glyph.
+    /// Plain box. A role this renderer recognises and has no distinct shape for.
+    ///
+    /// Several of these do have a shape in SBOL Visual that is not drawn here
+    /// yet, so a plain box means "no shape in this renderer", not "no shape in
+    /// the standard". The role IRI travels in the tooltip either way, so the
+    /// information is present even when the geometry is not.
     Generic,
     /// Dashed box. **The role was not recognised.**
     ///
@@ -49,6 +54,16 @@ const GLYPH_TABLE: &[(&str, Glyph)] = &[
     ("SO:0000296", Glyph::OriginOfReplication),
     ("SO:0000704", Glyph::Generic), // gene
     ("SO:0000110", Glyph::Generic), // sequence_feature
+    ("SO:0000804", Glyph::Generic), // engineered_region
+    ("SO:0000280", Glyph::Generic), // gene, engineered
+    ("SO:0000057", Glyph::Generic), // operator
+    ("SO:0000627", Glyph::Generic), // insulator
+    ("SO:0000374", Glyph::Generic), // ribozyme
+    ("SO:0000724", Glyph::Generic), // origin_of_transfer
+    ("SO:0001687", Glyph::Generic), // restriction_enzyme_recognition_site
+    ("SO:0005850", Glyph::Generic), // primer_binding_site
+    ("SO:0000725", Glyph::Generic), // transit_peptide
+    ("SO:0001836", Glyph::Generic), // non_coding_RNA_gene
 ];
 
 /// Chooses a glyph for a Sequence Ontology role IRI.

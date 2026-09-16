@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 132" width="800" height="132">
+  <title>urn:integrase:test:reporter-cassette</title>
+  <desc>400 base pairs, 7 annotated features. Confidence: inside the model's validated range.</desc>
+  <line x1="20.00" y1="82.00" x2="780.00" y2="82.00" stroke="#16161A" stroke-width="2"/>
+  <g class="row" data-row="0">
+    <g><path d="M 20.00 82.00 L 20.00 64.00 L 86.50 64.00 M 80.50 60.00 L 86.50 64.00 L 80.50 68.00" fill="none" stroke="#3F8F5B" stroke-width="1.5" stroke-linejoin="round"/><title>J23100 (promoter)</title></g>
+    <g><path d="M 96.00 82.00 A 14.25 14.25 0 0 1 124.50 82.00 Z" fill="#D98A2B" stroke="#16161A" stroke-width="1.5"/><title>B0034 (RBS)</title></g>
+    <g><path d="M 134.00 73.00 L 354.00 73.00 L 362.00 82.00 L 354.00 91.00 L 134.00 91.00 Z" fill="#2F6FA8" stroke="#16161A" stroke-width="1.5"/><title>GFP (CDS)</title></g>
+    <g><path d="M 552.00 73.00 L 389.00 73.00 L 381.00 82.00 L 389.00 91.00 L 552.00 91.00 Z" fill="#2F6FA8" stroke="#16161A" stroke-width="1.5"/><title>mCherry (CDS)</title></g>
+    <g><path d="M 599.50 82.00 L 599.50 64.00 M 591.50 64.00 L 607.50 64.00" fill="none" stroke="#B0413E" stroke-width="1.5"/><title>B0015 (terminator)</title></g>
+    <g><rect x="647.00" y="73.00" width="57.00" height="18.00" fill="#8A8A94" stroke="#16161A" stroke-width="1.5"/><path d="M 647.00 91.00 L 704.00 73.00" fill="none" stroke="#16161A" stroke-width="1.5"/><title>mystery (unknown [https://identifiers.org/SO:9999999])</title></g>
+  </g>
+  <g class="row" data-row="1">
+    <g><rect x="20.00" y="41.00" width="760.00" height="18.00" fill="#8A8A94" stroke="#16161A" stroke-width="1.5"/><title>engineered region (feature [https://identifiers.org/SO:0000804])</title></g>
+  </g>
+</svg>

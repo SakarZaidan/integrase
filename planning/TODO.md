@@ -290,9 +290,10 @@ Counts by subplan:
 
 ### Raised by the SVG renderer, 2026-09-16
 
-- [ ] **Overlapping features are drawn on one row.** A component-level role spans the whole
-      construct and is drawn over its parts. Row-packing overlapping spans is the fix, and it is
-      what makes any real design readable.
+- [ ] **Several SBOL Visual glyphs are drawn as a plain box.** Operator, insulator, ribozyme,
+      primer binding site and origin of transfer all have a standard shape that this renderer
+      does not draw. The role IRI is in the tooltip, so nothing is lost, but the figure is less
+      informative than the standard allows.
 - [ ] `ComponentReference` and `ExternallyDefined` features do not resolve to a location. Both
       are reported rather than guessed at. `ComponentReference` needs the instance-tree walk that
       `sbol3::ComponentReference::trace` already implements.

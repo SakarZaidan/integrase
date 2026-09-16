@@ -26,10 +26,31 @@ about what that region is. Hovering over it shows the raw ontology IRI.
 Shapes follow SBOL Visual conventions. The struck-through box is ours, not part
 of that standard.
 
+A plain box means this renderer has no distinct shape for that role, not that
+SBOL Visual has none. Several of these do have a standard shape that is not
+drawn here yet. Both the plain box and the struck-through box carry the raw
+ontology IRI in their tooltip, so the role is always readable even when the
+geometry does not distinguish it.
+
 Direction follows the strand. A reverse-strand coding sequence points left. It
 still occupies the same span as a forward one at the same coordinates, because
 the span is a fact about the sequence and the direction is a fact about the
 feature.
+
+## Rows
+
+Features that overlap are drawn on separate rows, stacking upward from the
+backbone. Shortest spans sit nearest the backbone, so the parts of a construct
+line up along it and anything containing them sits above.
+
+That ordering is what makes the picture readable. An SBOL file usually carries a
+component-level role covering the whole construct alongside the sub-features
+inside it. Packing in sequence order would let that container claim the second
+row before most parts were placed, scattering the parts across the rows above
+and below it.
+
+Each row is a `<g class="row" data-row="N">` in the markup, so the layout is
+visible to anything reading the file rather than buried in coordinates.
 
 ## Texture: how much to trust it
 
