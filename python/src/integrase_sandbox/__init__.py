@@ -24,34 +24,49 @@ from .genome import (
     InvalidSequenceError,
     Sequence,
 )
+from .molecules import Chemistry, Fit, Group, Molecule, Pocket, Verdict, fit
 from .parameters import Parameter, Provenance, illustrative
 from .phenotype import Contribution, Locus, MonogenicTrait, Outcome, PolygenicTrait, Trait
 from .process import Process
+from .safety import CURATION_STATEMENT, describe_content
 from .state import CellState, Counts, Environment
+from .trials import Phase, Result, develop
 
 __all__ = [
     "BASES",
     "BY_LETTER",
     "CODON_TABLE",
+    "CURATION_STATEMENT",
     "STOP_CODONS",
     "AminoAcid",
     "CellState",
+    "Chemistry",
     "Chromosome",
     "Contribution",
     "Counts",
     "Environment",
+    "Fit",
     "Gene",
     "Genome",
+    "Group",
     "InvalidSequenceError",
     "Locus",
+    "Molecule",
     "MonogenicTrait",
     "Outcome",
     "Parameter",
+    "Phase",
+    "Pocket",
     "PolygenicTrait",
     "Process",
     "Provenance",
+    "Result",
     "Sequence",
     "Trait",
+    "Verdict",
+    "describe_content",
+    "develop",
+    "fit",
     "illustrative",
     "substitution_effect",
 ]
