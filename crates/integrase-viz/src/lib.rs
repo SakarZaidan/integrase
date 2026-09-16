@@ -11,6 +11,12 @@
 
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used, clippy::panic))]
 
+pub mod glyph;
+pub mod svg;
+
+pub use glyph::{Glyph, glyph_for_role};
+pub use svg::{SvgOptions, render_svg};
+
 use integrase_sim::DomainVerdict;
 
 /// How a feature's fill is drawn.

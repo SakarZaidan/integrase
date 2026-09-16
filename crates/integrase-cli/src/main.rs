@@ -8,6 +8,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use integrase_core::{COMMON_ENZYMES, find_pattern, find_restriction_sites};
 use integrase_screen::{Gateway, NullBackend, ScreeningGateway};
 use integrase_sim::{DomainVerdict, RbsInput, RbsThermodynamicModel};
+use integrase_viz::{SvgOptions, render_svg};
 use std::path::PathBuf;
 
 /// Genetic design with the error bars attached.
@@ -57,6 +58,25 @@ enum Command {
         motif: Option<String>,
     },
 
+    /// Draw a design as an SVG diagram.
+    ///
+    /// Not gated on screening. A picture of a sequence is not a step toward
+    /// making one, and gating it would push users to look at their designs
+    /// somewhere with no confidence encoding at all.
+    Render {
+        /// Path to an SBOL 3 Turtle file.
+        path: PathBuf,
+        /// Write here instead of to stdout.
+        #[arg(long, short)]
+        out: Option<PathBuf>,
+        /// Which design to draw when the file holds more than one.
+        #[arg(long)]
+        id: Option<String>,
+        /// Canvas width in user units.
+        #[arg(long, default_value_t = 800)]
+        width: u32,
+    },
+
     /// Write a design toward physical synthesis.
     ///
     /// Requires a configured screening backend. With none, this refuses, which
@@ -97,6 +117,12 @@ fn run(cli: Cli) -> anyhow::Result<()> {
             host,
         } => predict(&utr, &start_codon, &host)?,
         Command::Search { sequence, motif } => search(&sequence, motif.as_deref())?,
+        Command::Render {
+            path,
+            out,
+            id,
+            width,
+        } => render(&path, out.as_deref(), id.as_deref(), width)?,
         Command::Export { path, format } => export(&path, format)?,
     }
     Ok(())
@@ -156,6 +182,68 @@ fn import(path: &std::path::Path, show_notes: bool) -> anyhow::Result<()> {
                 println!("  ... and {} more; pass --notes to see all", n - 3);
             }
         }
+    }
+    Ok(())
+}
+
+/// Draws a design and writes the SVG.
+///
+/// The confidence encoding is [`DomainVerdict::Uncalibrated`], because a design
+/// read from a file carries no prediction. That renders every feature as outline
+/// only, which is the truthful statement: shape and hue say what the parts are,
+/// and the absence of fill says nothing here has been validated.
+fn render(
+    path: &std::path::Path,
+    out: Option<&std::path::Path>,
+    id: Option<&str>,
+    width: u32,
+) -> anyhow::Result<()> {
+    let text = std::fs::read_to_string(path)?;
+    let result = integrase_sbol::from_turtle(&text)?;
+
+    let design = match id {
+        Some(want) => result
+            .designs
+            .iter()
+            .find(|d| d.id.0 == want)
+            .ok_or_else(|| {
+                let available: Vec<&str> = result.designs.iter().map(|d| d.id.0.as_str()).collect();
+                anyhow::anyhow!(
+                    "no design {want:?} in {}. Found: {available:?}",
+                    path.display()
+                )
+            })?,
+        // Refusing to guess. Picking the first design of several would put a
+        // figure of the wrong construct in front of someone who would have no
+        // way to tell from looking at it.
+        None => {
+            if result.designs.len() > 1 {
+                let available: Vec<&str> = result.designs.iter().map(|d| d.id.0.as_str()).collect();
+                anyhow::bail!(
+                    "{} designs in {}; pass --id to choose one. Found: {available:?}",
+                    result.designs.len(),
+                    path.display()
+                );
+            }
+            result
+                .designs
+                .first()
+                .ok_or_else(|| anyhow::anyhow!("no designs in {}", path.display()))?
+        }
+    };
+
+    let opts = SvgOptions {
+        width,
+        ..SvgOptions::default()
+    };
+    let svg = render_svg(design, &DomainVerdict::Uncalibrated, opts);
+
+    match out {
+        Some(p) => {
+            std::fs::write(p, &svg)?;
+            eprintln!("wrote {} ({} bytes)", p.display(), svg.len());
+        }
+        None => print!("{svg}"),
     }
     Ok(())
 }

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 100" width="800" height="100">
+  <title>urn:integrase:test:reporter-cassette</title>
+  <desc>400 base pairs, 6 annotated features. Confidence: not calibrated.</desc>
+  <line x1="20.00" y1="50.00" x2="780.00" y2="50.00" stroke="#16161A" stroke-width="2"/>
+  <g><path d="M 20.00 50.00 L 20.00 32.00 L 86.50 32.00 M 80.50 28.00 L 86.50 32.00 L 80.50 36.00" fill="none" stroke="#3F8F5B" stroke-width="1.5" stroke-dasharray="1 3" stroke-linejoin="round"/><title>J23100 (promoter)</title></g>
+  <g><path d="M 96.00 50.00 A 14.25 14.25 0 0 1 124.50 50.00 Z" fill="none" stroke="#16161A" stroke-width="1.5" stroke-dasharray="1 3"/><title>B0034 (RBS)</title></g>
+  <g><path d="M 134.00 41.00 L 354.00 41.00 L 362.00 50.00 L 354.00 59.00 L 134.00 59.00 Z" fill="none" stroke="#16161A" stroke-width="1.5" stroke-dasharray="1 3"/><title>GFP (CDS)</title></g>
+  <g><path d="M 552.00 41.00 L 389.00 41.00 L 381.00 50.00 L 389.00 59.00 L 552.00 59.00 Z" fill="none" stroke="#16161A" stroke-width="1.5" stroke-dasharray="1 3"/><title>mCherry (CDS)</title></g>
+  <g><path d="M 599.50 50.00 L 599.50 32.00 M 591.50 32.00 L 607.50 32.00" fill="none" stroke="#B0413E" stroke-width="1.5" stroke-dasharray="1 3"/><title>B0015 (terminator)</title></g>
+  <g><rect x="647.00" y="41.00" width="57.00" height="18.00" fill="none" stroke="#16161A" stroke-width="1.5" stroke-dasharray="1 3"/><path d="M 647.00 59.00 L 704.00 41.00" fill="none" stroke="#16161A" stroke-width="1.5"/><title>mystery (unknown)</title></g>
+</svg>

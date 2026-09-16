@@ -288,6 +288,23 @@ Counts by subplan:
       gates the entire funding path. Owner decision.
 - [ ] Identify a second independent calibration dataset. Caps data availability at 7.
 
+### Raised by the SVG renderer, 2026-09-16
+
+- [ ] **The voice check does not read source comments.** `tools/check-voice.sh` targets markdown
+      only, so the section 11 rules go unenforced on Rust doc comments, which is where most of
+      this project's prose now lives. Extend it to `//!` and `///` blocks.
+- [ ] **SBOL import yields `Range` objects as designs.** Rendering
+      `bba_f2620_popsreceiver.pySBOL3.expected.ttl` lists 17 designs, five of which are
+      `.../SubComponentN/Range1`. A `Range` is a location, not a construct. Related to the open
+      sub-feature location resolution item.
+- [ ] **Sub-feature locations are not resolved into features.** `BBa_F2620` renders as one
+      undifferentiated box over 1023 bp. Its parts are present in the file as `SubComponent`
+      references with `Range` locations, and the importer drops them. The figure is honest about
+      what it has, but what it has is much less than the file carries.
+- [ ] Interval bars are specified by `IntervalCap` and not yet drawn. `draws_interval_bar` exists;
+      nothing calls it, because no render path currently carries a `Prediction` alongside a
+      `Design`.
+
 ### Blocking before Phase 1a starts
 
 Promoted here because `FINAL-DECISION.md` names them as gating:
