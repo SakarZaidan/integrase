@@ -59,10 +59,10 @@ fn every_fixture_parses() {
 
 /// Anything the import could not carry across must be reported, not dropped.
 ///
-/// This does not assert that nothing is lost. Plenty is: sub-feature locations
-/// are not resolved yet, and components without sequences are skipped. It
-/// asserts that loss is **visible**, which is the property that matters and the
-/// one that would rot silently.
+/// This does not assert that nothing is lost. Plenty is: component references
+/// and externally defined features do not resolve to a location, and components
+/// without sequences are skipped. It asserts that loss is **visible**, which is
+/// the property that matters and the one that would rot silently.
 #[test]
 fn every_skipped_object_is_reported() {
     for path in fixtures() {

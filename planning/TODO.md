@@ -290,14 +290,12 @@ Counts by subplan:
 
 ### Raised by the SVG renderer, 2026-09-16
 
-- [ ] **SBOL import yields `Range` objects as designs.** Rendering
-      `bba_f2620_popsreceiver.pySBOL3.expected.ttl` lists 17 designs, five of which are
-      `.../SubComponentN/Range1`. A `Range` is a location, not a construct. Related to the open
-      sub-feature location resolution item.
-- [ ] **Sub-feature locations are not resolved into features.** `BBa_F2620` renders as one
-      undifferentiated box over 1023 bp. Its parts are present in the file as `SubComponent`
-      references with `Range` locations, and the importer drops them. The figure is honest about
-      what it has, but what it has is much less than the file carries.
+- [ ] **Overlapping features are drawn on one row.** A component-level role spans the whole
+      construct and is drawn over its parts. Row-packing overlapping spans is the fix, and it is
+      what makes any real design readable.
+- [ ] `ComponentReference` and `ExternallyDefined` features do not resolve to a location. Both
+      are reported rather than guessed at. `ComponentReference` needs the instance-tree walk that
+      `sbol3::ComponentReference::trace` already implements.
 - [ ] Interval bars are specified by `IntervalCap` and not yet drawn. `draws_interval_bar` exists;
       nothing calls it, because no render path currently carries a `Prediction` alongside a
       `Design`.
