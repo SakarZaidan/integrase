@@ -26,7 +26,7 @@ set -uo pipefail
 TARGETS=("$@")
 if [ ${#TARGETS[@]} -eq 0 ]; then
   TARGETS=()
-  for p in planning docs crates tools .githooks README.md CONTRIBUTING.md CODE_OF_CONDUCT.md; do
+  for p in planning docs crates python tools .githooks README.md CONTRIBUTING.md CODE_OF_CONDUCT.md; do
     [ -e "$p" ] && TARGETS+=("$p")
   done
 fi
@@ -39,6 +39,7 @@ grey() { printf '\033[90m%s\033[0m\n' "$1"; }
 # This script necessarily contains the patterns it searches for, so it must
 # never check itself. Same for the lockfiles and anything binary.
 PRUNE=( --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=target
+        --exclude-dir=.venv --exclude-dir=__pycache__
         --exclude=check-voice.sh --exclude=*.lock --exclude=*.svg )
 
 # Build the list of files to scan, honouring the opt-out marker.
