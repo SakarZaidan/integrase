@@ -123,6 +123,104 @@ lesson would have inverted into the model it exists to correct.
 Writing your own trait works like writing your own process: a class with an
 `evaluate` method and a `name`, and nothing to inherit.
 
+## Designing a medicine, and watching it fail
+
+The molecule puzzle is a shape-and-chemistry matching exercise. A pocket has
+positions with a chemical character, and a candidate has groups that either
+complement them or do not. Hydrophobic pairs with hydrophobic, positive with
+negative, hydrogen bond donor with acceptor.
+
+```python
+from integrase_sandbox import Chemistry, Group, Molecule, Pocket, develop, fit
+
+pocket = Pocket("kinase-like pocket", (
+    Group(0, Chemistry.HYDROPHOBIC),
+    Group(1, Chemistry.NEGATIVE),
+    Group(2, Chemistry.DONOR),
+    Group(3, Chemistry.HYDROPHOBIC),
+))
+candidate = Molecule("candidate-A", (
+    Group(0, Chemistry.HYDROPHOBIC),
+    Group(1, Chemistry.POSITIVE),
+    Group(2, Chemistry.ACCEPTOR),
+    Group(3, Chemistry.HYDROPHOBIC),
+))
+
+result = develop(fit(candidate, pocket), seed=7)
+print(result.describe())
+```
+
+```
+candidate-A:
+  Puzzle complementarity 100% (4 matched, 0 clashing, 0 unfilled)
+  Preclinical pass chance adjusted to 90% by the fit
+  Passed preclinical
+  Phase I pass rate 52.0%, unchanged by the fit
+  Passed Phase I
+  Phase II pass rate 28.9%, unchanged by the fit
+  Failed Phase II
+
+Stopped at Phase II: no measurable benefit to patients
+  The biggest single reason drugs fail. Over half of late-stage failures are
+  lack of efficacy. The target was hit and the patients did not get better,
+  which usually means the target was the wrong one.
+```
+
+**A perfect solution to the puzzle still usually fails, and that is the lesson.**
+The fit changes the preclinical odds, because chemistry is what preclinical work
+tests. It does not change Phase II at all, because whether a target is the right
+target is not a question about the molecule.
+
+The phase rates are the only measured numbers in the sandbox. About 90 percent
+of candidates entering clinical trials fail: Phase I passes 52 percent, Phase II
+drops to 28.9 percent, and 8.1 percent reach approval, over twelve or more years
+and more than 2.5 billion dollars per approved drug. Everything else here is
+illustrative, and the contrast is deliberate, because the failure rates are the
+curriculum.
+
+Nothing congratulates a student who reaches approval. A simulator contains only
+what was put into it, so someone who "cures" something inside it has solved a
+puzzle someone wrote, which is a good exercise and is not discovery. Calling it
+discovery would teach a false idea of what medical research requires.
+
+Every result carries `Verdict.UNCALIBRATED`, which is an enum with exactly one
+member so that there is nowhere to put "calibrated". No field is named affinity,
+potency, or anything else that reads as a physical quantity, and a test checks
+that none appears.
+
+## Why there is no intent filter
+
+The sandbox was asked to restrict itself to good uses. That is not implementable
+and the reason is worth stating.
+
+Intent is not in the data. The edit that disables a harmful gene is the same
+edit, reversed, that enables it, and the software sees identical letters.
+Understanding how a pathogen causes disease is exactly what is required to
+counter it. Any filter would be either trivially bypassable or restrictive
+enough to block real learning, and both failures leave someone believing a
+control is in place.
+
+What is here instead is curation. The sandbox contains the genes, organisms and
+molecules that were written for it and nothing else: no pathogen sequence, no
+toxin gene, no real orderable construct. A student cannot misuse content that is
+absent. **Curation decides what exists; a filter guesses at intent and fails.**
+
+Four properties hold that boundary, each with a test rather than an assurance:
+
+- The sandbox imports nothing from the design tool, checked by parsing every
+  module rather than by trying an import, so an import hidden inside a function
+  cannot slip through. It therefore has no route to synthesis, and the screening
+  gate in `integrase-screen` is not weakened by the sandbox existing.
+- Every gene it ships is listed with where the sequence came from, and a test
+  fails if a reachable gene is missing from that list.
+- Exactly one piece of content is not invented: thirteen codons of human
+  haemoglobin beta, needed because the sickle cell variant has to sit at its real
+  position. A test fails if that count ever rises.
+- No module imports anything that writes files or opens connections.
+
+`describe_content()` prints all of it, for a teacher deciding whether to put this
+in front of a class without reading the source.
+
 ## What it simplifies, and where
 
 Stated here rather than left to be discovered.

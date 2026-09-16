@@ -288,6 +288,21 @@ Counts by subplan:
       gates the entire funding path. Owner decision.
 - [ ] Identify a second independent calibration dataset. Caps data availability at 7.
 
+### Sandbox, raised 2026-09-16
+
+- [ ] **Find a biology educator to review the content.** Subplan 33 names this as the main risk and
+      it is not one I can check alone. The engine is the smaller half; getting teaching material
+      wrong is worse than getting a research tool wrong.
+- [ ] Huntington's repeat-count dose response, the natural third genetics lesson. Needs repeat
+      expansion in `Sequence` first.
+- [ ] Cystic fibrosis dF508, which needs a deletion operation rather than a substitution.
+- [ ] The zoom navigation subplan 33 describes. The containment hierarchy exists; nothing walks it.
+- [ ] Diploid genomes. Sickle cell recessiveness cannot be taught without them, and the trait layer
+      says so in its output rather than modelling it.
+- [ ] Assert in the packaging job that the published wheel excludes `integrase_sandbox`. ADR 0002
+      names this as the property the packaging decision rests on, and it currently follows from
+      maturin's behaviour rather than an explicit exclusion.
+
 ### Raised by the SVG renderer, 2026-09-16
 
 - [ ] **Several SBOL Visual glyphs are drawn as a plain box.** Operator, insulator, ribozyme,

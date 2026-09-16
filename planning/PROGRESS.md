@@ -479,3 +479,35 @@ what a first-order scheme should do and would catch a silent change to the integ
 second uv project, and names the property that decision rests on: the published wheel must not
 contain it. Verified by building the wheel and listing it. That is maturin's behaviour rather than
 an explicit exclusion, so the packaging job has to assert it before the first release.
+
+### The sandbox lessons (#33, and the molecule work)
+
+Traits return distributions, not answers. Sickle cell and eye colour ship together because they
+teach opposite things: one gene with a traceable mechanism, and a trait where the model taught in
+schools is not a simplification but a falsehood.
+
+**A test caught a real bug in the odds arithmetic.** A genome carrying no variants came back with
+its own baseline distorted, 55/30/15 turning into 67/23/10. Odds are a two-class idea, and
+converting each of three mutually exclusive classes to odds against everything else and then
+renormalising is not the identity. Effects are additive on the log probability scale, where adding
+to one class and renormalising multiplies its odds against every other class by `exp(effect)`, so
+with two outcomes it is exactly the log-odds shift the literature reports. The same fix made a rare
+baseline shiftable again, which it had not been.
+
+The drug design puzzle ships with the attrition model rather than without it, which is the whole
+design. A perfect solution to the matching puzzle still faces the 28.9 percent Phase II rate
+unchanged, because whether a target is the right target is not a question about the molecule. The
+phase rates are the only measured numbers in the sandbox, and the contrast with everything else
+being illustrative is deliberate.
+
+**Safety is curation, and the curation is tested rather than asserted.** Subplan 33 argued that an
+intent filter is not implementable, because the edit that disables a harmful gene is the same edit
+reversed. What is enforceable is what exists. Four properties now have tests: the sandbox imports
+nothing from the design tool, checked by parsing every module so an import inside a function cannot
+slip through; every shipped gene is declared with its origin; exactly one piece of content is not
+invented and a test fails if that count rises; and nothing imports a module that writes files or
+opens connections.
+
+I checked that those guards can fail, by adding `import integrase` and `import socket` to a sandbox
+module and confirming each test caught it. A guard that cannot fail is worse than no guard, because
+it reads as assurance.
