@@ -24,6 +24,7 @@ import math
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
+from .diploid import DiploidGenome, Inheritance, Zygosity
 from .genome import Genome
 from .parameters import Parameter
 from .state import Environment
@@ -384,3 +385,170 @@ def _normalise(log_weights: dict[str, float]) -> dict[str, float]:
     weights = {k: math.exp(v - largest) for k, v in log_weights.items()}
     total = sum(weights.values())
     return {k: w / total for k, w in weights.items()}
+
+
+class MendelianTrait:
+    """A trait whose outcome depends on how many variant copies are carried.
+
+    The class that makes carrier status expressible. `MonogenicTrait` sees one
+    copy and can only report affected or not; this sees two and can report the
+    heterozygous state, which for a recessive condition is the interesting one
+    and is where most of the population's variant copies actually sit.
+
+    Takes a `DiploidGenome` rather than a `Genome`, so it is a different
+    protocol from `Trait` and deliberately not interchangeable with it. A
+    diploid trait handed a haploid genome would have to invent a second copy,
+    and inventing one is how a carrier gets reported as unaffected.
+    """
+
+    __slots__ = (
+        "_absent",
+        "_carrier",
+        "_caveat",
+        "_label",
+        "_locus",
+        "_mode",
+        "_penetrance",
+        "_present",
+        "_why",
+    )
+
+    def __init__(
+        self,
+        name: str,
+        locus: Locus,
+        mode: Inheritance,
+        present: str,
+        absent: str,
+        carrier: str,
+        penetrance: Parameter,
+        why: str = "",
+        caveat: str = "",
+    ) -> None:
+        self._label = name
+        self._locus = locus
+        self._mode = mode
+        self._present = present
+        self._absent = absent
+        self._carrier = carrier
+        self._penetrance = penetrance
+        self._why = why
+        self._caveat = caveat
+
+    @property
+    def name(self) -> str:
+        return self._label
+
+    @property
+    def mode(self) -> Inheritance:
+        return self._mode
+
+    def evaluate(self, genome: DiploidGenome, environment: Environment) -> Outcome:
+        """The outcome implied by this genome's copy number at the locus."""
+        del environment
+
+        zygosity = genome.zygosity(
+            self._locus.gene, self._locus.position, self._locus.reference_base
+        )
+        if zygosity is Zygosity.UNKNOWN:
+            return Outcome(
+                trait=self._label,
+                probabilities={"cannot be assessed": 1.0},
+                explanation=[
+                    f"{self._locus.gene} is missing from one or both copies, so "
+                    "this trait cannot be evaluated"
+                ],
+                certainty="No result. This is not the same as a negative result.",
+            )
+
+        copies = zygosity.variant_copies
+        explanation = [
+            f"{self._locus.gene} position {self._locus.position}: "
+            f"{zygosity.value} ({copies} of 2 copies carry the variant)",
+            f"Inheritance is {self._mode.value}.",
+        ]
+        if self._why and copies:
+            explanation.append(self._why)
+
+        p = float(self._penetrance)
+        outcome = self._outcome_for(copies, p)
+        explanation.append(self._mode_note(copies))
+        if (copies and self._mode is not Inheritance.RECESSIVE) or copies == 2:
+            explanation.append(
+                f"Penetrance is {p:.0%}, meaning that fraction of people with "
+                f"this genotype show the trait. {self._penetrance.describe()}"
+            )
+
+        return Outcome(
+            trait=self._label,
+            probabilities=outcome,
+            explanation=explanation,
+            certainty="\n\n".join(part for part in (self._certainty(copies), self._caveat) if part),
+        )
+
+    def _outcome_for(self, copies: int, penetrance: float) -> dict[str, float]:
+        """Copy number to a distribution, by inheritance mode."""
+        if self._mode is Inheritance.RECESSIVE:
+            if copies == 2:
+                return {self._present: penetrance, self._absent: 1.0 - penetrance}
+            if copies == 1:
+                return {self._carrier: 1.0}
+            return {self._absent: 1.0}
+
+        if self._mode is Inheritance.DOMINANT:
+            if copies >= 1:
+                return {self._present: penetrance, self._absent: 1.0 - penetrance}
+            return {self._absent: 1.0}
+
+        if self._mode is Inheritance.CODOMINANT:
+            if copies == 2:
+                return {self._present: penetrance, self._absent: 1.0 - penetrance}
+            if copies == 1:
+                return {self._carrier: 1.0}
+            return {self._absent: 1.0}
+
+        # Additive: each copy contributes, so one copy gives roughly half the
+        # chance of showing the trait. Roughly, because "half the effect" and
+        # "half the chance of crossing a threshold" are not the same thing, and
+        # which one a real additive trait follows depends on the trait.
+        share = penetrance * copies / 2
+        if share <= 0:
+            return {self._absent: 1.0}
+        return {self._present: share, self._absent: 1.0 - share}
+
+    def _mode_note(self, copies: int) -> str:
+        if self._mode is Inheritance.RECESSIVE and copies == 1:
+            return (
+                f"One variant copy and one working copy. The working copy is "
+                f"enough, so this is the carrier state: {self._carrier}. A "
+                "carrier can pass the variant on."
+            )
+        if self._mode is Inheritance.DOMINANT and copies == 1:
+            return "One variant copy is enough for a dominant condition."
+        if self._mode is Inheritance.ADDITIVE:
+            return (
+                f"Each copy contributes, so {copies} copies give roughly "
+                f"{copies}/2 of the full effect."
+            )
+        return f"{copies} variant copies under a {self._mode.value} pattern."
+
+    def _certainty(self, copies: int) -> str:
+        if copies == 0:
+            return (
+                "Neither copy carries this variant. Other causes of the same "
+                "condition are not modelled here, so this is a statement about "
+                "one position and not a clean bill of health."
+            )
+        if copies == 1 and self._mode is Inheritance.RECESSIVE:
+            return (
+                "Carrier status is the state most people with a recessive "
+                "variant are in, and it is invisible without testing. Two "
+                "carriers have a one in four chance per child of two variant "
+                "copies, which is where the condition appears."
+            )
+        return (
+            "One gene, one change, and a mechanism that can be traced from the "
+            "base to the protein to the cell. Most traits are not like this, "
+            "which is why this one is worth studying and worth not generalising "
+            "from."
+        )
