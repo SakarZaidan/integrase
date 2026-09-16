@@ -290,9 +290,6 @@ Counts by subplan:
 
 ### Raised by the SVG renderer, 2026-09-16
 
-- [ ] **The voice check does not read source comments.** `tools/check-voice.sh` targets markdown
-      only, so the section 11 rules go unenforced on Rust doc comments, which is where most of
-      this project's prose now lives. Extend it to `//!` and `///` blocks.
 - [ ] **SBOL import yields `Range` objects as designs.** Rendering
       `bba_f2620_popsreceiver.pySBOL3.expected.ttl` lists 17 designs, five of which are
       `.../SubComponentN/Range1`. A `Range` is a location, not a construct. Related to the open
