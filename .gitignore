@@ -8,6 +8,7 @@
 # The originating brief is an instruction to a contributor, not a deliverable.
 # It never belongs in version control.
 prompt.txt
+/.claude/
 
 # ---------------------------------------------------------------------------
 # Rust
@@ -150,3 +151,7 @@ flamegraph.svg
 criterion/
 /tmp/
 /scratch/
+
+# Snapshot output written beside a golden file when a render test fails.
+# Meant to be read with `diff` and then deleted, never committed.
+*.actual.svg

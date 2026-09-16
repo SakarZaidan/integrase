@@ -68,8 +68,6 @@ pub fn render_svg(design: &Design, verdict: &DomainVerdict, opts: SvgOptions) ->
     let seq_len = design.sequence.len().max(1);
     let inner = f64::from(opts.width.saturating_sub(opts.padding * 2).max(1));
     let pad = f64::from(opts.padding);
-    let height = opts.track_height + opts.padding * 2;
-    let mid = pad + f64::from(opts.track_height) / 2.0;
 
     let x_of = |pos: usize| -> f64 {
         #[allow(clippy::cast_precision_loss)]
@@ -80,7 +78,7 @@ pub fn render_svg(design: &Design, verdict: &DomainVerdict, opts: SvgOptions) ->
     // Draw in sequence order, not import order. Two files describing the same
     // construct with the annotations listed differently must produce the same
     // figure, and the id is the final tiebreak so that co-located features of
-    // the same span do not depend on input ordering either.
+    // equal span do not depend on input ordering either.
     let mut features: Vec<_> = design.features.iter().collect();
     features.sort_by(|a, b| {
         (a.location.start, a.location.end, &a.id.0).cmp(&(
@@ -90,9 +88,23 @@ pub fn render_svg(design: &Design, verdict: &DomainVerdict, opts: SvgOptions) ->
         ))
     });
 
+    // Spans are placed into rows so that overlapping features do not draw over
+    // each other. A component-level role covering the whole construct is a
+    // normal thing for an SBOL file to carry, and drawing it on the backbone
+    // hid every part inside it.
+    let rows = assign_rows(&features, x_of);
+    let row_count = rows.iter().copied().max().map_or(0, |m| m + 1).max(1);
+
+    #[allow(clippy::cast_precision_loss)]
+    let stack = (row_count - 1) as f64 * ROW_PITCH;
+    let height = f64::from(opts.track_height) + stack + pad * 2.0;
+    let base_mid = pad + stack + f64::from(opts.track_height) / 2.0;
+
     let mut s = String::new();
-    s.push_str(&format!(r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {} {height}" width="{}" height="{height}">"#,
-        opts.width, opts.width));
+    s.push_str(&format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {height:.0}" width="{w}" height="{height:.0}">"#,
+        w = opts.width
+    ));
     s.push('\n');
 
     s.push_str(&pattern_defs(&features, enc.fill));
@@ -112,34 +124,140 @@ pub fn render_svg(design: &Design, verdict: &DomainVerdict, opts: SvgOptions) ->
     ));
     s.push('\n');
 
-    s.push_str(&format!(r#"  <line x1="{pad:.2}" y1="{mid:.2}" x2="{:.2}" y2="{mid:.2}" stroke="{INK}" stroke-width="2"/>"#,
-        pad + inner));
+    s.push_str(&format!(
+        r##"  <line x1="{pad:.2}" y1="{base_mid:.2}" x2="{:.2}" y2="{base_mid:.2}" stroke="{INK}" stroke-width="2"/>"##,
+        pad + inner
+    ));
     s.push('\n');
 
-    for f in features {
-        let g = glyph_for_role(&f.role.0);
-        let left = x_of(f.location.start);
-        // A zero-length or sub-pixel feature still has to be visible. Clamping
-        // the width is preferable to dropping it, because a feature that
-        // silently vanishes from a figure is worse than one drawn slightly wide.
-        let right = x_of(f.location.end).max(left + 6.0).min(pad + inner);
-        s.push_str(&format!(
-            "  {}",
-            glyph_svg(
-                g,
-                left,
-                right,
-                mid,
-                f.location.strand,
-                &enc,
-                f.name.as_deref()
-            )
-        ));
+    // One group per row, rather than one flat list of glyphs. The rows are a
+    // real part of the layout, and a reader opening the file in an editor, or a
+    // renderer reusing this layout, should not have to recover them from
+    // coordinates.
+    for row in 0..row_count {
+        #[allow(clippy::cast_precision_loss)]
+        let mid = base_mid - row as f64 * ROW_PITCH;
+        s.push_str(&format!(r#"  <g class="row" data-row="{row}">"#));
         s.push('\n');
+
+        for (f, _) in features.iter().zip(&rows).filter(|(_, r)| **r == row) {
+            let g = glyph_for_role(&f.role.0);
+            let left = x_of(f.location.start);
+            // A zero-length or sub-pixel feature still has to be visible.
+            // Clamping the width beats dropping it, because a feature that
+            // silently vanishes from a figure is worse than one drawn slightly
+            // wide.
+            let right = x_of(f.location.end)
+                .max(left + MIN_GLYPH_WIDTH)
+                .min(pad + inner);
+            s.push_str(&format!(
+                "    {}",
+                glyph_svg(
+                    g,
+                    Placement { left, right, mid },
+                    f.location.strand,
+                    &enc,
+                    f.name.as_deref(),
+                    &f.role.0,
+                )
+            ));
+            s.push('\n');
+        }
+        s.push_str("  </g>\n");
     }
 
     s.push_str("</svg>\n");
     s
+}
+
+/// The box a glyph is drawn into, as the row packing decided it.
+///
+/// `mid` is the centre line of the glyph's row, which for row 0 is the backbone
+/// and for every row above it is offset by [`ROW_PITCH`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Placement {
+    /// Left edge in user units.
+    left: f64,
+    /// Right edge in user units, never closer than [`MIN_GLYPH_WIDTH`].
+    right: f64,
+    /// Centre line of the row.
+    mid: f64,
+}
+
+/// Vertical distance between stacked rows.
+///
+/// A promoter reaches 18 units above its row's centre line and a coding sequence
+/// reaches 9 below, so anything under 27 would let the tallest glyph of one row
+/// touch the deepest glyph of the row above.
+const ROW_PITCH: f64 = 32.0;
+
+/// Narrowest a glyph may be drawn, in user units.
+///
+/// A zero-length feature is a real annotation, and a cut is zero-length by
+/// definition. Drawing nothing would be the same as dropping it.
+const MIN_GLYPH_WIDTH: f64 = 6.0;
+
+/// Assigns each feature to a row so that no two on the same row overlap.
+///
+/// Shortest spans are placed first, so the parts of a construct land on the
+/// backbone in a line and anything containing them stacks above. Taking
+/// features in sequence order instead produces a correct packing that reads
+/// wrongly: a component-level role covering the whole construct claims the
+/// second row before most parts are placed, and the parts then scatter across
+/// the rows above and below it.
+///
+/// Innermost elements nearest the reference line, containers stacking outward,
+/// is the usual shape for nesting layout, and it matches how a genetic construct
+/// is drawn by hand.
+///
+/// Overlap is measured in **drawn** coordinates rather than sequence
+/// coordinates. Two features 3 bp apart on a 10 kb construct do not overlap
+/// biologically and do overlap on screen, and the reader is looking at the
+/// screen. Features that merely abut share a row and touch, which is what
+/// adjacent parts of a construct do.
+fn assign_rows<F>(features: &[&integrase_core::Feature], x_of: F) -> Vec<usize>
+where
+    F: Fn(usize) -> f64,
+{
+    let spans: Vec<(f64, f64)> = features
+        .iter()
+        .map(|f| {
+            let left = x_of(f.location.start);
+            (left, x_of(f.location.end).max(left + MIN_GLYPH_WIDTH))
+        })
+        .collect();
+
+    // Placement order, with the feature id as the final tiebreak so that two
+    // features of identical span always resolve the same way. Without it the
+    // figure would depend on sort stability, which is not a property to rely on.
+    let mut order: Vec<usize> = (0..features.len()).collect();
+    order.sort_by(|&a, &b| {
+        (spans[a].1 - spans[a].0)
+            .total_cmp(&(spans[b].1 - spans[b].0))
+            .then(spans[a].0.total_cmp(&spans[b].0))
+            .then_with(|| features[a].id.0.cmp(&features[b].id.0))
+    });
+
+    let mut rows = vec![0_usize; features.len()];
+    let mut occupied: Vec<Vec<(f64, f64)>> = Vec::new();
+
+    for &i in &order {
+        let (left, right) = spans[i];
+        let slot = occupied
+            .iter()
+            .position(|row| row.iter().all(|&(a, b)| right <= a || left >= b));
+        match slot {
+            Some(r) => {
+                occupied[r].push((left, right));
+                rows[i] = r;
+            }
+            None => {
+                occupied.push(vec![(left, right)]);
+                rows[i] = occupied.len() - 1;
+            }
+        }
+    }
+    rows
 }
 
 /// Emits `<pattern>` definitions for the hues actually used.
@@ -250,13 +368,13 @@ fn stroke_attr(border: Border, g: Glyph) -> String {
 /// is a fact about the feature.
 fn glyph_svg(
     g: Glyph,
-    left: f64,
-    right: f64,
-    mid: f64,
+    at: Placement,
     strand: Strand,
     enc: &ConfidenceEncoding,
     name: Option<&str>,
+    role: &str,
 ) -> String {
+    let Placement { left, right, mid } = at;
     let fill = fill_attr(enc.fill, g);
     let stroke = stroke_attr(enc.border, g);
     let h = 18.0;
@@ -272,9 +390,18 @@ fn glyph_svg(
     };
     let step = if forward { 1.0_f64 } else { -1.0_f64 };
 
+    // A glyph with no distinct shape carries its role IRI in the tooltip, so a
+    // plain box or a struck-through box still says exactly what it is. Without
+    // that, mapping several roles onto one shape would lose the difference
+    // between them entirely rather than only visually.
+    let what = if matches!(g, Glyph::Generic | Glyph::Unknown) && !role.is_empty() {
+        format!("{} [{}]", g.label(), role)
+    } else {
+        g.label().to_owned()
+    };
     let label = name.map_or_else(
-        || format!("<title>{}</title>", escape(g.label())),
-        |n| format!("<title>{} ({})</title>", escape(n), escape(g.label())),
+        || format!("<title>{}</title>", escape(&what)),
+        |n| format!("<title>{} ({})</title>", escape(n), escape(&what)),
     );
 
     let body = match g {
