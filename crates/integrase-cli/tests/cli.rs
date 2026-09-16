@@ -194,3 +194,128 @@ fn export_refuses_without_a_backend_and_leaks_nothing_to_stdout() {
         "it must also say what still works, or it reads as a broken tool: {err}"
     );
 }
+
+// --- render ------------------------------------------------------------------
+
+/// Rendering is not gated on screening.
+///
+/// The export gate exists because export is a step toward making physical DNA.
+/// Drawing a picture is not, and gating it would push users to look at their
+/// designs in a viewer that carries no confidence encoding at all, which is the
+/// outcome the gate is supposed to prevent.
+#[test]
+fn render_succeeds_without_a_screening_backend() {
+    let f = fixture_with_a_design();
+    let out = run(&[
+        "render",
+        f.to_str().unwrap(),
+        "--id",
+        "https://synbiohub.org/public/igem/BBa_F2620",
+    ]);
+    assert!(out.status.success(), "render must not require screening");
+
+    let s = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        s.starts_with("<svg"),
+        "expected SVG on stdout, got: {s:.120}"
+    );
+    assert!(s.ends_with("</svg>\n"));
+}
+
+/// A design with no attached prediction renders as uncalibrated.
+///
+/// This is the check that the honest default survives the wiring. Rendering an
+/// unvalidated design as though it were validated is the single worst output
+/// this command could produce, and it would look completely normal.
+#[test]
+fn a_design_read_from_a_file_renders_as_uncalibrated() {
+    let f = fixture_with_a_design();
+    let out = run(&[
+        "render",
+        f.to_str().unwrap(),
+        "--id",
+        "https://synbiohub.org/public/igem/BBa_F2620",
+    ]);
+    let s = String::from_utf8_lossy(&out.stdout);
+
+    assert!(
+        s.contains("Confidence: not calibrated."),
+        "the text alternative must state the confidence: {s}"
+    );
+    assert!(
+        s.contains(r#"fill="none""#),
+        "uncalibrated features must be outline only: {s}"
+    );
+    assert!(
+        !s.contains("url(#"),
+        "an uncalibrated render has no textured fill to define: {s}"
+    );
+}
+
+/// With several designs and no `--id`, the command refuses instead of guessing.
+///
+/// Picking the first would put a figure of the wrong construct in front of
+/// someone who has no way to tell from looking at it. The error has to name the
+/// available identifiers, or the user cannot act on it.
+#[test]
+fn render_refuses_to_choose_between_designs() {
+    let f = fixture_with_a_design();
+    let out = run(&["render", f.to_str().unwrap()]);
+
+    assert!(!out.status.success());
+    assert!(
+        out.stdout.is_empty(),
+        "a refusal must not emit a partial figure"
+    );
+
+    let err = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        err.contains("pass --id"),
+        "the error must say how to proceed: {err}"
+    );
+    assert!(
+        err.contains("BBa_F2620"),
+        "it must list what is available: {err}"
+    );
+}
+
+/// An unknown `--id` fails and says what was there instead.
+#[test]
+fn render_names_the_available_designs_when_the_id_is_wrong() {
+    let f = fixture_with_a_design();
+    let out = run(&["render", f.to_str().unwrap(), "--id", "nope"]);
+
+    assert!(!out.status.success());
+    assert!(out.stdout.is_empty());
+    let err = String::from_utf8_lossy(&out.stderr);
+    assert!(err.contains("nope"));
+    assert!(err.contains("BBa_F2620"));
+}
+
+/// `--out` writes the file and keeps stdout clean.
+///
+/// The progress line goes to stderr so that `integrase render ... > fig.svg`
+/// and `integrase render ... --out fig.svg` both produce a usable file.
+#[test]
+fn render_to_a_file_keeps_stdout_empty() {
+    let f = fixture_with_a_design();
+    let dir = std::env::temp_dir().join(format!("integrase-render-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let target = dir.join("figure.svg");
+
+    let out = run(&[
+        "render",
+        f.to_str().unwrap(),
+        "--id",
+        "https://synbiohub.org/public/igem/BBa_F2620",
+        "--out",
+        target.to_str().unwrap(),
+    ]);
+
+    assert!(out.status.success());
+    assert!(out.stdout.is_empty(), "with --out, stdout stays clean");
+
+    let written = std::fs::read_to_string(&target).unwrap();
+    assert!(written.starts_with("<svg"));
+    std::fs::remove_dir_all(&dir).ok();
+}

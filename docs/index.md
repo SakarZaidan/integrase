@@ -14,9 +14,11 @@ worthless if you do not know how to read what it hands back.
 
 ## Status
 
-Early. The workspace builds and the core types exist; the biophysical models,
-SBOL import/export, circuit compilation, and rendering do not yet. Version
-`0.0.0`, nothing published to a registry.
+Early. The workspace builds, the core types exist, SBOL 3 Turtle import works,
+the thermodynamic RBS model produces predictions with an explicit domain verdict,
+and designs render to SVG. Circuit compilation, the wgpu renderer, and every
+screening backend other than the one that refuses all requests do not exist yet.
+Version `0.0.0`, nothing published to a registry.
 
 This documentation describes what exists plus the shape of what is coming, and
 marks the difference. Pages describing unbuilt subsystems say so at the top.
@@ -27,6 +29,7 @@ marks the difference. Pages describing unbuilt subsystems say so at the top.
 |---|---|
 | [Reading a prediction](concepts/uncertainty.md) | Everyone, first |
 | [Limitations](limitations.md) | Everyone, before relying on output |
+| [Reading a figure](concepts/reading-a-figure.md) | Anyone looking at a diagram |
 | Getting started | New users. Being written. |
 | Guides | Task-oriented walkthroughs. Being written. |
 | Reference | Generated from the code. Not yet published. |

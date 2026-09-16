@@ -421,6 +421,7 @@ dependencies = [
  "integrase-sbol",
  "integrase-screen",
  "integrase-sim",
+ "integrase-viz",
 ]
 
 [[package]]
