@@ -399,3 +399,83 @@ through.
 Reporting the `quick-xml` chain to Oxigraph is now the highest-value contribution available, since
 that is the actual fix location and every downstream SBOL user inherits it. Added to `TODO.md`
 alongside the `sbol-py` and `urn_design.ttl` items.
+
+---
+
+## 2026-09-16: rendering, and the first of the sandbox
+
+Four merged pull requests and a fifth in progress. Recording what the work found rather than what
+it shipped, since the findings are the part that changes later decisions.
+
+### SVG rendering (#28, #31)
+
+Designs render to SVG with the confidence encoding carried into the figure. Shape and hue say what
+a part is, fill texture and border style say how much to trust the prediction about it, and the two
+channels never cross. Convert a figure to greyscale and both survive.
+
+The golden files earned their place immediately. Two bugs were invisible until the generated output
+was read: reverse-strand features were mirrored about their own start coordinate and drawn at
+entirely the wrong place on the backbone, and stroke-only glyphs emitted pattern definitions nothing
+referenced. Neither would have failed a test written against the API.
+
+Row packing came later and needed a second attempt. Greedy interval partitioning in sequence order
+produces a correct packing that reads wrongly: a component-level role spanning the whole construct
+claims the second row before most parts are placed, and the parts then scatter above and below it.
+Placing shortest spans first puts the parts in a line on the backbone with the container above.
+**The first version was correct and useless**, which is worth remembering the next time a layout
+looks finished.
+
+### The voice check had a hole in it (#29)
+
+`tools/check-voice.sh` read markdown only. Most of this project's prose now lives in Rust doc
+comments, so the section 11 rules went unenforced exactly where the writing happens. Coverage went
+from 5 files to 111.
+
+The extension needed quote tracking rather than a naive search for the comment marker, because this
+codebase is mostly ontology IRIs and `"https://identifiers.org/SO:0000167"` would otherwise read as
+a comment starting at the `//`. Rust tracks double quotes only: a lifetime like `'a` opens a
+single-quote state that never closes.
+
+### SBOL import was producing designs out of coordinate pairs (#30)
+
+`BBa_F2620` imported as one undifferentiated 1023 bp box, and the same file produced 17 designs
+where it holds 8.
+
+The cause is worth recording because it will recur. **`try_from_object` in `sbol-rs` is a
+projection, not a type test.** Every typed constructor returns `Some` for any object, reading
+whatever properties happen to be present. A `sbol:Range` legitimately carries `sbol:hasSequence`,
+pointing at the sequence it indexes into, so projecting one as a Component produced a design with a
+real sequence attached and nothing about it looking wrong. Any future use of that API has to match
+the typed `SbolObject` variant first.
+
+The same pass found two protein sequences importing as DNA designs. The single-letter amino acid
+alphabet overlaps the IUPAC nucleotide ambiguity codes almost completely, so a protein sequence
+passes nucleotide validation. Only the declared encoding catches it, and only if checked before
+validation rather than after.
+
+### The education sandbox engine
+
+Subplan 33's architecture, built: one `CellState`, four independent processes, a `Simulator` that
+steps them, and a fictional four-gene organism to run.
+
+Two things went in that the subplan asked for and that are easy to lose later. Every constant is a
+`Parameter` carrying a provenance, and a measured or derived one with no source is refused at
+construction. A test asserts that no shipped process holds a bare float, because adding one is easy,
+looks harmless, and removes the only thing telling a student the number was invented.
+
+`Process` is a `Protocol`, and a test asserts that a class with a `step` method and a `name` works
+with no base class, no import, and no registration. If that test ever needs one of those to pass,
+the design has regressed into something a beginner cannot extend.
+
+**A test failure worth keeping.** Message levels settle at 2.45 where the analytic answer is 2.5. My
+first instinct was a loose tolerance. The 2 percent is the discretisation: transcription runs before
+degradation in the same step, so the discrete fixed point is `(k/d)(1 - d*dt)`. The test now asserts
+the discrete value exactly and a second test asserts that halving `dt` halves the error, which is
+what a first-order scheme should do and would catch a silent change to the integration.
+
+### Packaging
+
+`ADR 0002` records why the sandbox is a separate import root inside one Python project rather than a
+second uv project, and names the property that decision rests on: the published wheel must not
+contain it. Verified by building the wheel and listing it. That is maturin's behaviour rather than
+an explicit exclusion, so the packaging job has to assert it before the first release.

@@ -30,6 +30,7 @@ marks the difference. Pages describing unbuilt subsystems say so at the top.
 | [Reading a prediction](concepts/uncertainty.md) | Everyone, first |
 | [Limitations](limitations.md) | Everyone, before relying on output |
 | [Reading a figure](concepts/reading-a-figure.md) | Anyone looking at a diagram |
+| [The sandbox](sandbox/index.md) | Students and teachers |
 | Getting started | New users. Being written. |
 | Guides | Task-oriented walkthroughs. Being written. |
 | Reference | Generated from the code. Not yet published. |
