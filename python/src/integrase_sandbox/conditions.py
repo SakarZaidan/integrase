@@ -33,9 +33,10 @@ are chosen so the example behaves usefully, and they say so.
 
 from __future__ import annotations
 
+from .diploid import DiploidGenome, Inheritance, heterozygous, homozygous
 from .genome import Chromosome, Gene, Genome, Sequence
 from .parameters import Parameter, Provenance, illustrative
-from .phenotype import Contribution, Locus, MonogenicTrait, PolygenicTrait
+from .phenotype import Contribution, Locus, MendelianTrait, MonogenicTrait, PolygenicTrait
 
 # --- sickle cell -------------------------------------------------------------
 
@@ -117,6 +118,108 @@ copy of the variant gives sickle cell trait, which is mostly asymptomatic and
 confers some malaria resistance, and two copies give the disease. The sandbox's
 `Genome` holds one copy of each gene, so the diploid half of the lesson is not
 modelled and is stated here rather than quietly dropped.
+"""
+
+
+HBB_LOCUS = Locus(gene="HBB", position=HBB_VARIANT_POSITION, reference_base="A")
+
+
+def hbb_diploid(variant_copies: int = 0) -> DiploidGenome:
+    """A diploid genome with 0, 1 or 2 copies of the sickle variant.
+
+    One copy is the state most people carrying this variant are in, and it is
+    the one a single-copy model could not express at all.
+    """
+    if variant_copies == 0:
+        return homozygous(hbb_genome(variant=False))
+    if variant_copies == 1:
+        return heterozygous(hbb_genome(variant=False), hbb_genome(variant=True))
+    if variant_copies == 2:
+        return homozygous(hbb_genome(variant=True))
+    msg = f"variant_copies must be 0, 1 or 2, got {variant_copies}"
+    raise ValueError(msg)
+
+
+SICKLE_CELL_INHERITED = MendelianTrait(
+    name="sickle cell anaemia",
+    locus=HBB_LOCUS,
+    mode=Inheritance.RECESSIVE,
+    present="affected",
+    absent="unaffected",
+    carrier="sickle cell trait, a carrier",
+    penetrance=Parameter(
+        value=1.0,
+        unit="fraction",
+        provenance=Provenance.MEASURED,
+        source=(
+            "homozygous HbSS is fully penetrant; severity varies widely with "
+            "fetal haemoglobin level and with care"
+        ),
+    ),
+    why=(
+        "The codon changes from GAG to GTG, so glutamate becomes valine. "
+        "Glutamate is negatively charged and hydrophilic; valine is uncharged "
+        "and strongly hydrophobic. That puts a sticky patch on the surface of "
+        "haemoglobin, and when oxygen is low the molecules link into long "
+        "fibres that pull the red cell out of shape."
+    ),
+    caveat=(
+        "Carrying one copy is not a lesser form of the disease. It is a "
+        "different state, mostly without symptoms, and it confers resistance "
+        "to malaria. That resistance is why the variant is common where "
+        "malaria is common, which is the clearest example in human genetics of "
+        "a variant being harmful and useful at once.\n\n"
+        "Not modelled here: the wide variation in severity between people with "
+        "two copies, which depends heavily on fetal haemoglobin level and on "
+        "access to care."
+    ),
+)
+"""Sickle cell anaemia, modelled with both copies.
+
+Replaces the single-copy `SICKLE_CELL` for any lesson about inheritance.
+`SICKLE_CELL` is kept because a first lesson about what one base change does to
+a protein does not need two copies, and introducing diploidy at that point makes
+the simpler point harder to see.
+"""
+
+
+MALARIA_RESISTANCE = MendelianTrait(
+    name="resistance to severe malaria",
+    locus=HBB_LOCUS,
+    mode=Inheritance.CODOMINANT,
+    present="strongly protected, at the cost of sickle cell anaemia",
+    absent="no protection from this variant",
+    carrier="substantially protected, without the disease",
+    penetrance=Parameter(
+        value=0.9,
+        unit="fraction",
+        provenance=Provenance.MEASURED,
+        source=(
+            "heterozygous HbAS is associated with roughly a 90 percent "
+            "reduction in the risk of severe malaria; the protection is "
+            "consistently large across studies and the exact figure varies"
+        ),
+        relative_error=0.15,
+    ),
+    why=(
+        "Red cells carrying the variant are cleared faster when infected, and "
+        "the parasite grows poorly in them."
+    ),
+    caveat=(
+        "This is the same locus as the sickle cell trait above, evaluated for a "
+        "different consequence. One variant, two outcomes, pulling in opposite "
+        "directions.\n\n"
+        "A variant is not good or bad on its own. Whether it helps depends on "
+        "where you live and what you are exposed to, which is why "
+        "population-level statements about genetic variants are so often wrong."
+    ),
+)
+"""The other side of the same locus.
+
+Evaluating one variant for two consequences is the point. A student who sees
+only the disease learns that this variant is a defect; a student who sees both
+learns why it persists at high frequency in parts of the world where malaria is
+endemic, which is a fact about selection rather than about defects.
 """
 
 

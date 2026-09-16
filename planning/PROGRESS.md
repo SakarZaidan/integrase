@@ -511,3 +511,29 @@ opens connections.
 I checked that those guards can fail, by adding `import integrase` and `import socket` to a sandbox
 module and confirming each test caught it. A guard that cannot fail is worse than no guard, because
 it reads as assurance.
+
+### Diploidy, and the state a one-copy model could not express
+
+The trait layer stated its own limit in prose: sickle cell said "this models one copy" because it
+had to. One variant copy gives sickle cell trait, two give the disease, and a model with one copy
+cannot tell the difference. Reporting a carrier as affected and reporting one as unaffected are both
+wrong, and those were the only two options available.
+
+`DiploidGenome` is composition rather than inheritance, for the reason the rest of the package is:
+a diploid genome is not a kind of haploid one, and a haploid one is not a diploid with a piece
+missing. `MendelianTrait` takes a `DiploidGenome` and is deliberately not interchangeable with
+`Trait`, because a diploid trait handed a haploid genome would have to invent a second copy, and
+inventing one is exactly how a carrier gets reported as clear.
+
+**The Punnett square is now a result rather than a rule.** `cross` samples offspring from one coin
+flip per chromosome per parent, and the 1:2:1 ratio falls out at 24.1 / 51.6 / 24.3 over 4000
+children. A hardcoded ratio would have made that test worthless; arriving at it by sampling is what
+makes it evidence the model does meiosis.
+
+Shipping malaria resistance on the same locus was the other half of the work. A student who sees
+only the disease learns the variant is a defect. One who sees both learns why it is common where
+malaria is common, which is a fact about selection rather than about defects.
+
+A missing copy returns `Zygosity.UNKNOWN` rather than counting as a reference copy. That is the one
+place in this module where the wrong default would be silently wrong in the direction that matters:
+it turns "we do not know" into "you are fine".

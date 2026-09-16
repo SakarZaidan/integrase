@@ -14,6 +14,16 @@ and every parameter that was chosen rather than measured says so.
 """
 
 from .aminoacids import BY_LETTER, AminoAcid, substitution_effect
+from .diploid import (
+    DiploidGenome,
+    Inheritance,
+    Zygosity,
+    cross,
+    gamete,
+    heterozygous,
+    homozygous,
+    inherit,
+)
 from .genome import (
     BASES,
     CODON_TABLE,
@@ -26,7 +36,15 @@ from .genome import (
 )
 from .molecules import Chemistry, Fit, Group, Molecule, Pocket, Verdict, fit
 from .parameters import Parameter, Provenance, illustrative
-from .phenotype import Contribution, Locus, MonogenicTrait, Outcome, PolygenicTrait, Trait
+from .phenotype import (
+    Contribution,
+    Locus,
+    MendelianTrait,
+    MonogenicTrait,
+    Outcome,
+    PolygenicTrait,
+    Trait,
+)
 from .process import Process
 from .safety import CURATION_STATEMENT, describe_content
 from .state import CellState, Counts, Environment
@@ -44,13 +62,16 @@ __all__ = [
     "Chromosome",
     "Contribution",
     "Counts",
+    "DiploidGenome",
     "Environment",
     "Fit",
     "Gene",
     "Genome",
     "Group",
+    "Inheritance",
     "InvalidSequenceError",
     "Locus",
+    "MendelianTrait",
     "Molecule",
     "MonogenicTrait",
     "Outcome",
@@ -64,9 +85,15 @@ __all__ = [
     "Sequence",
     "Trait",
     "Verdict",
+    "Zygosity",
+    "cross",
     "describe_content",
     "develop",
     "fit",
+    "gamete",
+    "heterozygous",
+    "homozygous",
     "illustrative",
+    "inherit",
     "substitution_effect",
 ]

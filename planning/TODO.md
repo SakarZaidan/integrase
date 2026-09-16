@@ -297,8 +297,11 @@ Counts by subplan:
       expansion in `Sequence` first.
 - [ ] Cystic fibrosis dF508, which needs a deletion operation rather than a substitution.
 - [ ] The zoom navigation subplan 33 describes. The containment hierarchy exists; nothing walks it.
-- [ ] Diploid genomes. Sickle cell recessiveness cannot be taught without them, and the trait layer
-      says so in its output rather than modelling it.
+- [ ] **Recombination.** Meiosis is one coin flip per chromosome, so linkage is absolute rather
+      than partial. Gene mapping cannot be taught without it, and it is the natural next step now
+      that diploidy exists.
+- [ ] Sex chromosomes, imprinting and mitochondrial inheritance. The two parental copies are
+      interchangeable here in a way they are not in a person.
 - [ ] Assert in the packaging job that the published wheel excludes `integrase_sandbox`. ADR 0002
       names this as the property the packaging decision rests on, and it currently follows from
       maturin's behaviour rather than an explicit exclusion.

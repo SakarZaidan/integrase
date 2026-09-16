@@ -123,6 +123,80 @@ lesson would have inverted into the model it exists to correct.
 Writing your own trait works like writing your own process: a class with an
 `evaluate` method and a `name`, and nothing to inherit.
 
+## Inheritance, and the state in between
+
+A genome has two copies of every chromosome, one from each parent. That is what
+makes the carrier state expressible, and the carrier state is where most of a
+recessive variant's copies actually sit.
+
+```python
+from integrase_sandbox import Environment
+from integrase_sandbox.conditions import SICKLE_CELL_INHERITED, hbb_diploid
+
+carrier = hbb_diploid(1)
+print(SICKLE_CELL_INHERITED.evaluate(carrier, Environment()).describe())
+```
+
+```
+sickle cell anaemia:
+  100.0%  sickle cell trait, a carrier
+
+What went into this:
+  - HBB position 19: one reference copy and one variant copy (1 of 2 copies carry the variant)
+  - Inheritance is recessive.
+  - The codon changes from GAG to GTG, so glutamate becomes valine. Glutamate is
+    negatively charged and hydrophilic; valine is uncharged and strongly
+    hydrophobic. That puts a sticky patch on the surface of haemoglobin, and when
+    oxygen is low the molecules link into long fibres that pull the red cell out
+    of shape.
+  - One variant copy and one working copy. The working copy is enough, so this is
+    the carrier state: sickle cell trait, a carrier. A carrier can pass the
+    variant on.
+
+Carrier status is the state most people with a recessive variant are in, and it
+is invisible without testing. Two carriers have a one in four chance per child of
+two variant copies, which is where the condition appears.
+```
+
+A carrier is not a mild case. Reporting one as affected or as unaffected are both
+wrong, and before diploidy those were the only two options available.
+
+### The Punnett square, as a result rather than a rule
+
+`cross` samples offspring rather than reciting proportions, so the classic ratio
+comes out of one coin flip per chromosome per parent:
+
+```python
+from integrase_sandbox import cross
+from integrase_sandbox.conditions import HBB_VARIANT_POSITION
+
+cross(carrier, carrier, "HBB", HBB_VARIANT_POSITION, "A", offspring=4000, seed=1)
+```
+
+```
+  24.1%  two reference copies
+  51.6%  one reference copy and one variant copy
+  24.3%  two variant copies
+```
+
+`inherit` draws a single child instead. A student who crosses two carriers and
+gets an unaffected child has seen why a one in four risk is not a promise in
+either direction, which a square drawn on a board does not show.
+
+### One variant, two consequences
+
+The same position is evaluated by a second trait:
+
+```
+resistance to severe malaria:
+  100.0%  substantially protected, without the disease
+```
+
+A student who sees only the disease learns this variant is a defect. One who sees
+both learns why it is common where malaria is common, which is a fact about
+selection rather than about defects. A variant is not good or bad on its own:
+whether it helps depends on where you live and what you are exposed to.
+
 ## Designing a medicine, and watching it fail
 
 The molecule puzzle is a shape-and-chemistry matching exercise. A pocket has
@@ -241,10 +315,14 @@ would compete.
 **Nutrients are one number between 0 and 1.** It stands in for every carbon and
 nitrogen source.
 
-**One copy of each gene.** Real genomes are diploid. Sickle cell anaemia is
-recessive, so one variant copy gives sickle cell trait and two give the disease,
-and the sandbox can only model the second. It says so where the trait is
-reported rather than leaving the distinction out.
+**No recombination.** Meiosis here is one coin flip per chromosome, so two genes
+on the same chromosome are always inherited together. In a real genome they are
+separated in proportion to the distance between them, and that partial linkage
+is how gene mapping works.
+
+**No imprinting, sex chromosomes, or mitochondrial inheritance.** All three are
+real and all three are absent, so the two parental copies are interchangeable
+here in a way they are not in a person.
 
 **Fixed time steps.** An adaptive integrator would be more accurate and would
 make the timeline unpredictable. "One step is one second" needs to stay true for
