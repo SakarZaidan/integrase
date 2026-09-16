@@ -70,6 +70,59 @@ A measured or derived parameter with no source is refused at construction. An
 unsourced number is indistinguishable from a guess, and labelling one
 "measured" would make it worse than an honest guess rather than better.
 
+## Traits, and why they come back as odds
+
+A trait takes a genome and an environment and returns a distribution, never a
+single answer. For most traits a single answer would be false.
+
+```python
+from integrase_sandbox.conditions import EYE_COLOUR, eye_colour_genome
+from integrase_sandbox.state import Environment
+
+print(EYE_COLOUR.evaluate(eye_colour_genome(herc2_variant="A"), Environment()).describe())
+```
+
+```
+eye colour:
+   79.5%  blue
+   16.1%  brown
+    4.4%  green or hazel
+
+What went into this:
+  - Starting from the population baseline: 30% blue, 55% brown, 15% green or hazel
+  - HERC2 position 12 carries A, shifting blue by +2.20 log odds (rs12913832 is
+    the single largest known contributor. It is not in a pigment gene at all: it
+    sits in a regulatory region of HERC2 and controls how much OCA2 is expressed)
+```
+
+Two lessons ship, chosen because they teach opposite things.
+
+**Sickle cell anaemia** is the clean case. One gene, one base, and a mechanism
+you can follow the whole way. The sixth codon of the mature haemoglobin beta
+protein is GAG, coding for glutamate. Change the middle A to a T and it becomes
+GTG, coding for valine. Glutamate is negatively charged and hydrophilic; valine
+is uncharged and strongly hydrophobic. That puts a sticky patch on the surface
+of the protein, and under low oxygen the molecules link into fibres that pull
+the red cell out of shape.
+
+The sandbox derives that explanation from an amino acid property table rather
+than reciting it, so the same reasoning works for a substitution you invent.
+
+**Eye colour is the correction.** The brown-dominant, blue-recessive model
+taught in most schools is not a simplification. It is wrong. Roughly 16 genes
+contribute, and the largest single contributor, rs12913832, is not in a pigment
+gene at all: it sits in a regulatory region of *HERC2* and controls how much
+*OCA2* is expressed. Two blue-eyed parents having a brown-eyed child is uncommon
+and entirely possible, which the school model says cannot happen.
+
+So eye colour ships as shifted odds with its reasoning shown, and a test asserts
+that **no combination of the modelled variants ever reaches 95 percent**. If one
+did, someone had tuned an effect size until a demo looked convincing, and the
+lesson would have inverted into the model it exists to correct.
+
+Writing your own trait works like writing your own process: a class with an
+`evaluate` method and a `name`, and nothing to inherit.
+
 ## What it simplifies, and where
 
 Stated here rather than left to be discovered.
@@ -89,6 +142,11 @@ would compete.
 
 **Nutrients are one number between 0 and 1.** It stands in for every carbon and
 nitrogen source.
+
+**One copy of each gene.** Real genomes are diploid. Sickle cell anaemia is
+recessive, so one variant copy gives sickle cell trait and two give the disease,
+and the sandbox can only model the second. It says so where the trait is
+reported rather than leaving the distinction out.
 
 **Fixed time steps.** An adaptive integrator would be more accurate and would
 make the timeline unpredictable. "One step is one second" needs to stay true for

@@ -13,6 +13,7 @@ simplest organism known. This uses the same architecture at far lower fidelity,
 and every parameter that was chosen rather than measured says so.
 """
 
+from .aminoacids import BY_LETTER, AminoAcid, substitution_effect
 from .genome import (
     BASES,
     CODON_TABLE,
@@ -24,23 +25,33 @@ from .genome import (
     Sequence,
 )
 from .parameters import Parameter, Provenance, illustrative
+from .phenotype import Contribution, Locus, MonogenicTrait, Outcome, PolygenicTrait, Trait
 from .process import Process
 from .state import CellState, Counts, Environment
 
 __all__ = [
     "BASES",
+    "BY_LETTER",
     "CODON_TABLE",
     "STOP_CODONS",
+    "AminoAcid",
     "CellState",
     "Chromosome",
+    "Contribution",
     "Counts",
     "Environment",
     "Gene",
     "Genome",
     "InvalidSequenceError",
+    "Locus",
+    "MonogenicTrait",
+    "Outcome",
     "Parameter",
+    "PolygenicTrait",
     "Process",
     "Provenance",
     "Sequence",
+    "Trait",
     "illustrative",
+    "substitution_effect",
 ]
